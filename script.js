@@ -525,20 +525,16 @@ class BusinessCalculator {
         this.addSettlementMessage(balances);
     }
 
-    calculateSettlementDetails(includeSettlements = true) {
+    calculateSettlementNeeded() {
         const project = this.getCurrentProject();
         if (!project) return null;
 
-        // Calculate net flows for both partners
-        const transactions = includeSettlements ? project.transactions : project.transactions.filter(t => t.type !== 'settlement');
-        const netFlows = this.calculateNetFlow(transactions, includeSettlements);
+        // Calculate net flows INCLUDING all settlements (they've already occurred)
+        const netFlows = this.calculateNetFlow(project.transactions, true);
         const partnerANetFlow = netFlows.partnerA;
         const partnerBNetFlow = netFlows.partnerB;
         
-        // Check if net flows are equal (within 0.01 tolerance)
         const netFlowDifference = Math.abs(partnerANetFlow - partnerBNetFlow);
-        
-        // Calculate settlement amount needed
         const settlementAmount = netFlowDifference / 2;
         
         // Determine who pays whom
@@ -570,16 +566,14 @@ class BusinessCalculator {
         
         settlementContainer.innerHTML = '';
 
-        // Calculate settlement needed EXCLUDING existing settlements (same as toggleSettlement)
-        // This shows what additional settlement is needed, matching what will be created
-        const settlementDetails = this.calculateSettlementDetails(false);
-        if (!settlementDetails) return;
+        const settlement = this.calculateSettlementNeeded();
+        if (!settlement) return;
         
         // Always show settlement message (either settled or needs settlement)
         const message = document.createElement('div');
         message.className = 'settlement-message';
         
-        if (settlementDetails.isSettled) {
+        if (settlement.isSettled) {
             // Accounts are truly balanced
             message.style.cssText = 'margin-top: 15px; padding: 15px; background: #d4edda; border-radius: 8px; border-left: 4px solid #28a745;';
             message.innerHTML = `
@@ -589,7 +583,7 @@ class BusinessCalculator {
             // Settlement needed
             message.style.cssText = 'margin-top: 15px; padding: 15px; background: #fff3cd; border-radius: 8px; border-left: 4px solid #ffc107;';
             message.innerHTML = `
-                <strong>Settlement:</strong> ${settlementDetails.payer} should pay ${settlementDetails.receiver} <strong>$${settlementDetails.settlementAmount.toFixed(2)}</strong> to balance accounts.
+                <strong>Settlement:</strong> ${settlement.payer} should pay ${settlement.receiver} <strong>$${settlement.settlementAmount.toFixed(2)}</strong> to balance accounts.
             `;
         }
         
@@ -803,20 +797,18 @@ class BusinessCalculator {
         
         // If marking as settled (not already settled), add settlement transaction
         if (!project.isSettled) {
-            // Use the same calculation method as addSettlementMessage() to ensure consistency
-            // Calculate excluding existing settlements to determine what new settlement is needed
-            const settlementDetails = this.calculateSettlementDetails(false);
+            const settlement = this.calculateSettlementNeeded();
             
-            if (settlementDetails && !settlementDetails.isSettled && settlementDetails.settlementAmount > 0.01) {
-                const description = `Settlement payment from ${settlementDetails.payer} to ${settlementDetails.receiver}`;
+            if (settlement && !settlement.isSettled && settlement.settlementAmount > 0.01) {
+                const description = `Settlement payment from ${settlement.payer} to ${settlement.receiver}`;
                 
                 // Add as a settlement transaction
                 const settlementTransaction = {
                     id: Date.now(),
                     type: 'settlement',
-                    paidBy: settlementDetails.payer,
-                    receivedBy: settlementDetails.receiver,
-                    amount: settlementDetails.settlementAmount,
+                    paidBy: settlement.payer,
+                    receivedBy: settlement.receiver,
+                    amount: settlement.settlementAmount,
                     description: description,
                     date: new Date().toISOString().split('T')[0]
                 };
