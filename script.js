@@ -570,7 +570,9 @@ class BusinessCalculator {
         
         settlementContainer.innerHTML = '';
 
-        const settlementDetails = this.calculateSettlementDetails(true);
+        // Calculate settlement needed EXCLUDING existing settlements (same as toggleSettlement)
+        // This shows what additional settlement is needed, matching what will be created
+        const settlementDetails = this.calculateSettlementDetails(false);
         if (!settlementDetails) return;
         
         // Always show settlement message (either settled or needs settlement)
