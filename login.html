@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Partner Calculator - Login</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        .login-container {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .login-card {
+            background: white;
+            border-radius: 12px;
+            padding: 40px;
+            max-width: 450px;
+            width: 100%;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+        }
+
+        .login-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .login-header h1 {
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+
+        .login-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 25px;
+            border-bottom: 2px solid #e0e0e0;
+        }
+
+        .login-tab {
+            flex: 1;
+            padding: 12px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 1rem;
+            color: #666;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s;
+        }
+
+        .login-tab.active {
+            color: #667eea;
+            border-bottom-color: #667eea;
+            font-weight: 600;
+        }
+
+        .login-form {
+            display: none;
+        }
+
+        .login-form.active {
+            display: block;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #555;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 6px;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .workspace-link-display {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 6px;
+            margin-top: 15px;
+            word-break: break-all;
+        }
+
+        .workspace-link-display strong {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+        }
+
+        .workspace-link-display code {
+            background: white;
+            padding: 8px;
+            border-radius: 4px;
+            display: block;
+            font-size: 0.9rem;
+            color: #667eea;
+        }
+
+        .copy-btn {
+            margin-top: 10px;
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9rem;
+        }
+
+        .copy-btn:hover {
+            background: #5568d3;
+        }
+
+        .error-message {
+            background: #ffeaea;
+            color: #e74c3c;
+            padding: 12px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            border-left: 4px solid #e74c3c;
+            display: none;
+        }
+
+        .error-message.show {
+            display: block;
+        }
+
+        .success-message {
+            background: #eafaf1;
+            color: #27ae60;
+            padding: 12px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            border-left: 4px solid #27ae60;
+            display: none;
+        }
+
+        .success-message.show {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <div class="login-card">
+            <div class="login-header">
+                <h1>Partner Calculator</h1>
+                <p>Access your shared workspace</p>
+            </div>
+
+            <div class="error-message" id="errorMessage"></div>
+            <div class="success-message" id="successMessage"></div>
+
+            <div class="login-tabs">
+                <button class="login-tab active" data-tab="login" onclick="switchTab('login')">Login</button>
+                <button class="login-tab" data-tab="create" onclick="switchTab('create')">Create Workspace</button>
+            </div>
+
+            <!-- Login Form -->
+            <form class="login-form active" id="loginForm" onsubmit="handleLogin(event)">
+                <div class="form-group">
+                    <label for="workspaceId">Workspace ID:</label>
+                    <input type="text" id="workspaceId" placeholder="Enter workspace ID" required>
+                    <small style="color: #666; margin-top: 5px; display: block;">This is the ID from your workspace link</small>
+                </div>
+                <div class="form-group">
+                    <label for="loginPassword">Password:</label>
+                    <input type="password" id="loginPassword" placeholder="Enter password" required>
+                </div>
+                <button type="submit" class="btn btn-revenue" style="width: 100%;">Login</button>
+            </form>
+
+            <!-- Create Workspace Form -->
+            <form class="login-form" id="createForm" onsubmit="handleCreateWorkspace(event)">
+                <div class="form-group">
+                    <label for="createPassword">Set Password:</label>
+                    <input type="password" id="createPassword" placeholder="Choose a password" required>
+                    <small style="color: #666; margin-top: 5px; display: block;">Share this password with your partner</small>
+                </div>
+                <button type="submit" class="btn btn-revenue" style="width: 100%;">Create Workspace</button>
+            </form>
+
+            <!-- Workspace Created Display -->
+            <div class="login-form" id="workspaceCreated" style="display: none;">
+                <div class="success-message show">
+                    Workspace created successfully! Share this link with your partner.
+                </div>
+                <div class="workspace-link-display">
+                    <strong>Your Workspace Link:</strong>
+                    <code id="workspaceLink"></code>
+                    <button type="button" class="copy-btn" onclick="copyWorkspaceLink()">Copy Link</button>
+                </div>
+                <div class="form-group" style="margin-top: 20px;">
+                    <label>Password:</label>
+                    <input type="text" id="createdPassword" readonly style="background: #f8f9fa;">
+                    <small style="color: #666; margin-top: 5px; display: block;">Share this password with your partner</small>
+                </div>
+                <button type="button" class="btn btn-revenue" style="width: 100%; margin-top: 20px;" onclick="goToApp()">Go to Calculator</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+    <script src="firebase-config.js"></script>
+    <script src="auth.js"></script>
+    <script>
+        let workspaceAuth = new WorkspaceAuth();
+        let createdWorkspaceId = null;
+        let createdPassword = null;
+
+        // Initialize on load
+        document.addEventListener('DOMContentLoaded', () => {
+            workspaceAuth.init();
+            
+            // Check for workspace ID in URL
+            const urlParams = new URLSearchParams(window.location.search);
+            const workspaceId = urlParams.get('workspace');
+            if (workspaceId) {
+                document.getElementById('workspaceId').value = workspaceId;
+            }
+        });
+
+        function switchTab(tab) {
+            document.querySelectorAll('.login-tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.login-form').forEach(f => f.classList.remove('active'));
+            
+            document.querySelector(`[data-tab="${tab}"]`).classList.add('active');
+            document.getElementById(tab === 'login' ? 'loginForm' : 'createForm').classList.add('active');
+            
+            hideMessages();
+        }
+
+        async function handleLogin(event) {
+            event.preventDefault();
+            hideMessages();
+
+            const workspaceId = document.getElementById('workspaceId').value.trim();
+            const password = document.getElementById('loginPassword').value;
+
+            if (!workspaceId || !password) {
+                showError('Please enter both workspace ID and password');
+                return;
+            }
+
+            try {
+                const result = await workspaceAuth.loginWorkspace(workspaceId, password);
+                if (result.success) {
+                    window.location.href = 'index.html';
+                }
+            } catch (error) {
+                showError(error.message || 'Login failed. Please check your workspace ID and password.');
+            }
+        }
+
+        async function handleCreateWorkspace(event) {
+            event.preventDefault();
+            hideMessages();
+
+            const password = document.getElementById('createPassword').value;
+
+            if (!password || password.length < 4) {
+                showError('Password must be at least 4 characters long');
+                return;
+            }
+
+            try {
+                const result = await workspaceAuth.createWorkspace(password);
+                if (result.success) {
+                    createdWorkspaceId = result.workspaceId;
+                    createdPassword = password;
+                    showWorkspaceCreated(result.workspaceId);
+                }
+            } catch (error) {
+                showError(error.message || 'Failed to create workspace. Please try again.');
+            }
+        }
+
+        function showWorkspaceCreated(workspaceId) {
+            document.getElementById('createForm').classList.remove('active');
+            document.getElementById('workspaceCreated').style.display = 'block';
+            
+            const link = workspaceAuth.getShareableLink(workspaceId);
+            document.getElementById('workspaceLink').textContent = link;
+            document.getElementById('createdPassword').value = createdPassword;
+        }
+
+        function copyWorkspaceLink() {
+            const link = document.getElementById('workspaceLink').textContent;
+            navigator.clipboard.writeText(link).then(() => {
+                const btn = event.target;
+                const originalText = btn.textContent;
+                btn.textContent = 'Copied!';
+                setTimeout(() => {
+                    btn.textContent = originalText;
+                }, 2000);
+            });
+        }
+
+        function goToApp() {
+            window.location.href = 'index.html';
+        }
+
+        function showError(message) {
+            const errorEl = document.getElementById('errorMessage');
+            errorEl.textContent = message;
+            errorEl.classList.add('show');
+        }
+
+        function showSuccess(message) {
+            const successEl = document.getElementById('successMessage');
+            successEl.textContent = message;
+            successEl.classList.add('show');
+        }
+
+        function hideMessages() {
+            document.getElementById('errorMessage').classList.remove('show');
+            document.getElementById('successMessage').classList.remove('show');
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Partner Calculator</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="app-layout">
+        <div class="container">
+            <header>
+                <h1>Partner Calculator</h1>
+                <p class="subtitle">Track expenses and revenue for equitable splits</p>
+                <div class="header-controls">
+                    <select class="project-selector" id="projectSelector">
+                        <option value="">Select a project...</option>
+                    </select>
+                    <div class="header-actions">
+                        <button class="btn-icon" id="newProjectBtn" title="New Project">+</button>
+                        <button class="btn-icon" id="settingsBtn" title="Settings">⚙️</button>
+                        <button class="btn-icon" id="logoutBtn" title="Logout">🚪</button>
+                    </div>
+                </div>
+            </header>
+
+        <div class="summary-card">
+            <div class="summary-header">
+                <h2 id="projectName">Select a Project</h2>
+                <div class="summary-actions" id="summaryActions" style="display: none;">
+                    <button class="btn btn-secondary btn-action-25" id="editProjectBtn" title="Edit project">✎ Edit</button>
+                    <button class="btn btn-settle btn-action-50" id="markSettledBtn">Mark as Settled</button>
+                    <button class="btn btn-expense btn-action-25" id="deleteProjectBtn" title="Delete project">Delete</button>
+                </div>
+            </div>
+            <div id="noProjectMessage" style="display: none; padding: 20px; text-align: center; color: #666;">
+                <p>Please select a project from the dropdown above or create a new one to get started.</p>
+            </div>
+            <div id="projectSummary" style="display: none;">
+                <div class="summary-table">
+                    <div class="summary-row">
+                        <span class="summary-label">Total Expenses:</span>
+                        <span class="summary-value expense-total" id="totalExpenses">$0.00</span>
+                    </div>
+                    <div class="summary-row">
+                        <span class="summary-label">Total Revenue:</span>
+                        <span class="summary-value revenue-total" id="totalRevenue">$0.00</span>
+                    </div>
+                    <div class="summary-row">
+                        <span class="summary-label">Net Profit:</span>
+                        <span class="summary-value" id="netProfit">$0.00</span>
+                    </div>
+                </div>
+                <div id="settlementMessageContainer">
+                    <!-- Settlement message will be inserted here -->
+                </div>
+            </div>
+        </div>
+
+        <div class="main-content">
+            <div class="form-section">
+                <div class="form-card">
+                    <h2>Add Expense</h2>
+                    <form id="expenseForm">
+                        <div class="form-group">
+                            <label for="expensePaidBy">Paid By:</label>
+                            <select id="expensePaidBy" required>
+                                <option value="">Select Partner</option>
+                                <option value="Partner A" id="expensePartnerA">Partner A</option>
+                                <option value="Partner B" id="expensePartnerB">Partner B</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="expenseAmount">Amount:</label>
+                            <input type="number" id="expenseAmount" step="0.01" min="0" placeholder="0.00" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="expenseDescription">Description:</label>
+                            <input type="text" id="expenseDescription" placeholder="What was this expense for?" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="expenseDate">Date:</label>
+                            <input type="date" id="expenseDate" required>
+                        </div>
+                        <button type="submit" class="btn btn-expense">Add Expense</button>
+                    </form>
+                </div>
+
+                <div class="form-card">
+                    <h2>Add Revenue</h2>
+                    <form id="revenueForm">
+                        <div class="form-group">
+                            <label for="revenueReceivedBy">Received By:</label>
+                            <select id="revenueReceivedBy" required>
+                                <option value="">Select Partner</option>
+                                <option value="Partner A" id="revenuePartnerA">Partner A</option>
+                                <option value="Partner B" id="revenuePartnerB">Partner B</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="revenueAmount">Amount:</label>
+                            <input type="number" id="revenueAmount" step="0.01" min="0" placeholder="0.00" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="revenueDescription">Description:</label>
+                            <input type="text" id="revenueDescription" placeholder="What was this revenue from?" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="revenueDate">Date:</label>
+                            <input type="date" id="revenueDate" required>
+                        </div>
+                        <button type="submit" class="btn btn-revenue">Add Revenue</button>
+                    </form>
+                </div>
+            </div>
+
+            <div class="transactions-section">
+                <div class="transactions-header">
+                    <h2>Transactions</h2>
+                    <button class="btn btn-secondary" id="clearProjectBtn" style="display: none;">Clear Project Data</button>
+                </div>
+                <div class="tabs">
+                    <button class="tab-btn active" data-tab="all">All</button>
+                    <button class="tab-btn" data-tab="expenses">Expenses</button>
+                    <button class="tab-btn" data-tab="revenue">Revenue</button>
+                </div>
+                <div class="transactions-list" id="transactionsList">
+                    <!-- Transactions will be inserted here -->
+                </div>
+            </div>
+
+            <div class="balance-section" id="balanceSection" style="display: none;">
+                <h3>Partner Balances</h3>
+                <div class="partner-balance" id="partnerBalances">
+                    <!-- Partner balances will be inserted here -->
+                </div>
+            </div>
+        </div>
+        </div>
+    </div>
+
+    <!-- Mobile Sidebar Overlay -->
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <!-- Settings Modal -->
+    <div class="modal" id="settingsModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Settings</h2>
+                <button class="modal-close" id="closeSettingsBtn">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="partnerAName">Partner A Name:</label>
+                    <input type="text" id="partnerAName" placeholder="Partner A">
+                </div>
+                <div class="form-group">
+                    <label for="partnerBName">Partner B Name:</label>
+                    <input type="text" id="partnerBName" placeholder="Partner B">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" id="cancelSettingsBtn">Cancel</button>
+                <button class="btn btn-revenue" id="saveSettingsBtn">Save Settings</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- New Project Modal -->
+    <div class="modal" id="newProjectModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>New Project</h2>
+                <button class="modal-close" id="closeNewProjectBtn">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="newProjectName">Project Name:</label>
+                    <input type="text" id="newProjectName" placeholder="Enter project name" required>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" id="cancelNewProjectBtn">Cancel</button>
+                <button class="btn btn-revenue" id="createProjectBtn">Create Project</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Project Modal -->
+    <div class="modal" id="editProjectModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Edit Project</h2>
+                <button class="modal-close" id="closeEditProjectBtn">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="editProjectName">Project Name:</label>
+                    <input type="text" id="editProjectName" placeholder="Enter project name" required>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" id="cancelEditProjectBtn">Cancel</button>
+                <button class="btn btn-revenue" id="saveProjectBtn">Save Changes</button>
+                <button class="btn btn-expense" id="deleteProjectFromModalBtn">Delete Project</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+    <script src="firebase-config.js"></script>
+    <script src="auth.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
