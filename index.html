@@ -53,8 +53,16 @@
         </div>
 
         <div class="main-content">
+            <!-- Row of buttons to show forms -->
+            <div class="form-buttons-row">
+                <button class="btn btn-expense" id="showExpenseBtn">+ Expense</button>
+                <button class="btn btn-revenue" id="showRevenueBtn">+ Revenue</button>
+                <button class="btn btn-settle" id="showSettlementBtn">+ Settlement</button>
+            </div>
+
+            <!-- Form sections (hidden by default) -->
             <div class="form-section">
-                <div class="form-card">
+                <div class="form-card" id="expenseFormCard" style="display: none;">
                     <h2>Add Expense</h2>
                     <form id="expenseForm">
                         <div class="form-group">
@@ -81,7 +89,7 @@
                     </form>
                 </div>
 
-                <div class="form-card">
+                <div class="form-card" id="revenueFormCard" style="display: none;">
                     <h2>Add Revenue</h2>
                     <form id="revenueForm">
                         <div class="form-group">
@@ -108,7 +116,7 @@
                     </form>
                 </div>
 
-                <div class="form-card">
+                <div class="form-card" id="settlementFormCard" style="display: none;">
                     <h2>Add Settlement</h2>
                     <form id="settlementForm">
                         <div class="form-group">
@@ -136,6 +144,14 @@
                 </div>
             </div>
 
+            <!-- Partner Balances Section (moved here) -->
+            <div class="balance-section" id="balanceSection" style="display: none;">
+                <h3>Partner Balances</h3>
+                <div class="partner-balance" id="partnerBalances">
+                    <!-- Balances will be inserted here -->
+                </div>
+            </div>
+
             <div class="transactions-section">
                 <div class="transactions-header">
                     <h2>Transactions</h2>
@@ -148,13 +164,6 @@
                 </div>
                 <div class="transactions-list" id="transactionsList">
                     <!-- Transactions will be inserted here -->
-                </div>
-            </div>
-
-            <div class="balance-section" id="balanceSection" style="display: none;">
-                <h3>Partner Balances</h3>
-                <div class="partner-balance" id="partnerBalances">
-                    <!-- Partner balances will be inserted here -->
                 </div>
             </div>
         </div>

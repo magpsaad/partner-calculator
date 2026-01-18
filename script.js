@@ -42,6 +42,11 @@ class BusinessCalculator {
         document.getElementById('revenueForm').addEventListener('submit', (e) => this.handleRevenueSubmit(e));
         document.getElementById('settlementForm').addEventListener('submit', (e) => this.handleSettlementSubmit(e));
         
+        // Form toggle buttons
+        document.getElementById('showExpenseBtn').addEventListener('click', () => this.showExpenseForm());
+        document.getElementById('showRevenueBtn').addEventListener('click', () => this.showRevenueForm());
+        document.getElementById('showSettlementBtn').addEventListener('click', () => this.showSettlementForm());
+        
         // Auto-fill settlement description when Paid By is selected
         document.getElementById('settlementPaidBy').addEventListener('change', (e) => {
             const paidBy = e.target.value;
@@ -332,9 +337,10 @@ class BusinessCalculator {
         await this.saveData();
         this.updateDisplay();
         
-        // Reset form
+        // Reset form and hide it
         e.target.reset();
         document.getElementById('revenueDate').value = new Date().toISOString().split('T')[0];
+        document.getElementById('revenueFormCard').style.display = 'none';
     }
 
     async handleSettlementSubmit(e) {
@@ -367,9 +373,28 @@ class BusinessCalculator {
         await this.saveData();
         this.updateDisplay();
         
-        // Reset form
+        // Reset form and hide it
         e.target.reset();
         document.getElementById('settlementDate').value = new Date().toISOString().split('T')[0];
+        document.getElementById('settlementFormCard').style.display = 'none';
+    }
+
+    showExpenseForm() {
+        document.getElementById('expenseFormCard').style.display = 'block';
+        document.getElementById('revenueFormCard').style.display = 'none';
+        document.getElementById('settlementFormCard').style.display = 'none';
+    }
+
+    showRevenueForm() {
+        document.getElementById('expenseFormCard').style.display = 'none';
+        document.getElementById('revenueFormCard').style.display = 'block';
+        document.getElementById('settlementFormCard').style.display = 'none';
+    }
+
+    showSettlementForm() {
+        document.getElementById('expenseFormCard').style.display = 'none';
+        document.getElementById('revenueFormCard').style.display = 'none';
+        document.getElementById('settlementFormCard').style.display = 'block';
     }
 
     calculateNetFlow(transactions, includeSettlements = true) {
