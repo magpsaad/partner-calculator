@@ -534,10 +534,30 @@ class BusinessCalculator {
         const project = this.getCurrentProject();
         if (!project) return;
 
+        // Debug: Log settings and transaction count to help diagnose sync issues
+        console.log('Settlement Calculation Debug:', {
+            partnerAName: this.settings.partnerAName,
+            partnerBName: this.settings.partnerBName,
+            transactionCount: project.transactions.length,
+            transactions: project.transactions.map(t => ({
+                type: t.type,
+                paidBy: t.paidBy,
+                receivedBy: t.receivedBy,
+                amount: t.amount
+            }))
+        });
+
         // Calculate net flows for both partners (including all settlements)
         const netFlows = this.calculateNetFlow(project.transactions, true);
         const partnerANetFlow = netFlows.partnerA;
         const partnerBNetFlow = netFlows.partnerB;
+        
+        // Debug: Log calculated net flows
+        console.log('Net Flows:', {
+            partnerA: partnerANetFlow,
+            partnerB: partnerBNetFlow,
+            difference: Math.abs(partnerANetFlow - partnerBNetFlow)
+        });
         
         // Check if net flows are equal (within 0.01 tolerance)
         const netFlowDifference = Math.abs(partnerANetFlow - partnerBNetFlow);
