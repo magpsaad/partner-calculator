@@ -801,14 +801,38 @@ class BusinessCalculator {
         
         // If marking as settled (not already settled), add settlement transaction
         if (!project.isSettled) {
+            // IMPORTANT: Use the exact same calculation as addSettlementMessage() to ensure consistency
             // Calculate net flows excluding existing settlement transactions
             const nonSettlementTransactions = project.transactions.filter(t => t.type !== 'settlement');
             const netFlows = this.calculateNetFlow(nonSettlementTransactions, false);
             const partnerANetFlow = netFlows.partnerA;
             const partnerBNetFlow = netFlows.partnerB;
             
+            // Debug: Log the calculation to help diagnose issues
+            console.log('Toggle Settlement Calculation:', {
+                partnerAName: this.settings.partnerAName,
+                partnerBName: this.settings.partnerBName,
+                partnerANetFlow: partnerANetFlow,
+                partnerBNetFlow: partnerBNetFlow,
+                netFlowDifference: Math.abs(partnerANetFlow - partnerBNetFlow),
+                nonSettlementTransactionCount: nonSettlementTransactions.length
+            });
+            
             const netFlowDifference = Math.abs(partnerANetFlow - partnerBNetFlow);
+            
+            // Only proceed if there's actually a difference to settle
+            if (netFlowDifference < 0.01) {
+                console.log('Net flows are already balanced, no settlement transaction needed');
+                project.isSettled = !project.isSettled;
+                await this.saveData();
+                this.renderProjectList();
+                this.updateDisplay();
+                return;
+            }
+            
             const settlementAmount = netFlowDifference / 2;
+            
+            console.log('Settlement Amount Calculated:', settlementAmount);
             
             if (settlementAmount > 0.01) {
                 // Determine who pays whom - partner with higher net flow pays partner with lower net flow
@@ -822,6 +846,14 @@ class BusinessCalculator {
                 }
                 
                 description = `Settlement payment from ${payer} to ${receiver}`;
+                
+                console.log('Creating settlement transaction:', {
+                    payer: payer,
+                    receiver: receiver,
+                    amount: settlementAmount,
+                    partnerANetFlow: partnerANetFlow,
+                    partnerBNetFlow: partnerBNetFlow
+                });
                 
                 // Add as a settlement transaction
                 const settlementTransaction = {
