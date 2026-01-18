@@ -79,21 +79,19 @@ class BusinessCalculator {
         document.getElementById('cancelSettingsBtn').addEventListener('click', () => this.hideSettingsModal());
         document.getElementById('closeSettingsBtn').addEventListener('click', () => this.hideSettingsModal());
         document.getElementById('clearProjectBtn').addEventListener('click', () => this.clearProjectData());
-        document.getElementById('editProjectBtn')?.addEventListener('click', () => {
-            if (this.currentProjectId) {
-                this.editProject(this.currentProjectId);
-            }
-        });
-        document.getElementById('deleteProjectBtn')?.addEventListener('click', () => {
-            if (this.currentProjectId) {
-                this.deleteProject(this.currentProjectId);
-            }
-        });
-        document.getElementById('editProjectHeaderBtn')?.addEventListener('click', () => {
-            if (this.currentProjectId) {
-                this.editProject(this.currentProjectId);
-            }
-        });
+        const editProjectHeaderBtn = document.getElementById('editProjectHeaderBtn');
+        if (editProjectHeaderBtn) {
+            editProjectHeaderBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                console.log('Edit header button clicked, currentProjectId:', this.currentProjectId);
+                if (this.currentProjectId) {
+                    this.editProject(this.currentProjectId);
+                } else {
+                    alert('Please select a project first.');
+                }
+            });
+        }
         document.getElementById('projectSelector')?.addEventListener('change', (e) => {
             const projectId = parseInt(e.target.value);
             if (projectId) {
@@ -539,8 +537,6 @@ class BusinessCalculator {
 
         // Update project name
         document.getElementById('projectName').textContent = project.name;
-        const summaryActions = document.getElementById('summaryActions');
-        if (summaryActions) summaryActions.style.display = 'flex';
 
         // Add settlement message
         this.addSettlementMessage(balances);
@@ -745,21 +741,20 @@ class BusinessCalculator {
         });
     }
 
-    selectProject(projectId) {
+    async selectProject(projectId) {
         this.currentProjectId = projectId;
-        this.saveData();
+        await this.saveData();
         this.renderProjectList();
-        this.updateDisplay();
         document.getElementById('projectSummary').style.display = 'block';
         document.getElementById('noProjectMessage').style.display = 'none';
         document.getElementById('clearProjectBtn').style.display = 'block';
+        // Force update display to restore values
+        this.updateDisplay();
     }
 
     showNoProjectState() {
         document.getElementById('projectSummary').style.display = 'none';
         document.getElementById('noProjectMessage').style.display = 'block';
-        const summaryActions = document.getElementById('summaryActions');
-        if (summaryActions) summaryActions.style.display = 'none';
         document.getElementById('clearProjectBtn').style.display = 'none';
         document.getElementById('projectName').textContent = 'Select a Project';
         document.getElementById('transactionsList').innerHTML = '<div class="empty-state"><p>Select a project to view transactions.</p></div>';
