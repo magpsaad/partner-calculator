@@ -670,10 +670,6 @@ class BusinessCalculator {
         // Update project name
         document.getElementById('projectName').textContent = project.name;
 
-        // Show report button when project is selected
-        const reportBtn = document.getElementById('allProjectsReportBtn');
-        if (reportBtn) reportBtn.style.display = 'block';
-
         // Add settlement message
         this.addSettlementMessage(balances);
     }
@@ -896,10 +892,6 @@ class BusinessCalculator {
         document.getElementById('transactionsList').innerHTML = '<div class="empty-state"><p>Select a project to view transactions.</p></div>';
         const balanceSection = document.getElementById('balanceSection');
         if (balanceSection) balanceSection.style.display = 'none';
-        
-        // Hide report button when no project is selected
-        const reportBtn = document.getElementById('allProjectsReportBtn');
-        if (reportBtn) reportBtn.style.display = 'none';
     }
 
     async createProject() {
@@ -1090,6 +1082,9 @@ class BusinessCalculator {
     }
 
     showAllProjectsReport() {
+        // Close settings modal if it's open
+        this.hideSettingsModal();
+
         const totals = this.calculateAllProjectsTotals();
 
         // Update modal with calculated values
