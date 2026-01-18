@@ -271,6 +271,8 @@ class BusinessCalculator {
             if (!confirm('This project is marked as settled. Add transaction anyway?')) {
                 return;
             }
+            // Reverse the settled flag when user confirms
+            project.isSettled = false;
         }
 
         const expense = {
@@ -302,6 +304,8 @@ class BusinessCalculator {
             if (!confirm('This project is marked as settled. Add transaction anyway?')) {
                 return;
             }
+            // Reverse the settled flag when user confirms
+            project.isSettled = false;
         }
 
         const revenue = {
@@ -320,6 +324,43 @@ class BusinessCalculator {
         // Reset form
         e.target.reset();
         document.getElementById('revenueDate').value = new Date().toISOString().split('T')[0];
+    }
+
+    calculateNetFlow(transactions, includeSettlements = true) {
+        let partnerA = { revenue: 0, expenses: 0, settlementReceived: 0, settlementPaid: 0 };
+        let partnerB = { revenue: 0, expenses: 0, settlementReceived: 0, settlementPaid: 0 };
+        
+        transactions.forEach(transaction => {
+            if (transaction.type === 'expense') {
+                if (transaction.paidBy === this.settings.partnerAName) {
+                    partnerA.expenses += transaction.amount;
+                } else if (transaction.paidBy === this.settings.partnerBName) {
+                    partnerB.expenses += transaction.amount;
+                }
+            } else if (transaction.type === 'revenue') {
+                if (transaction.receivedBy === this.settings.partnerAName) {
+                    partnerA.revenue += transaction.amount;
+                } else if (transaction.receivedBy === this.settings.partnerBName) {
+                    partnerB.revenue += transaction.amount;
+                }
+            } else if (transaction.type === 'settlement' && includeSettlements) {
+                if (transaction.paidBy === this.settings.partnerAName) {
+                    partnerA.settlementPaid += transaction.amount;
+                } else if (transaction.paidBy === this.settings.partnerBName) {
+                    partnerB.settlementPaid += transaction.amount;
+                }
+                if (transaction.receivedBy === this.settings.partnerAName) {
+                    partnerA.settlementReceived += transaction.amount;
+                } else if (transaction.receivedBy === this.settings.partnerBName) {
+                    partnerB.settlementReceived += transaction.amount;
+                }
+            }
+        });
+        
+        const partnerANetFlow = partnerA.revenue + partnerA.settlementReceived - partnerA.expenses - partnerA.settlementPaid;
+        const partnerBNetFlow = partnerB.revenue + partnerB.settlementReceived - partnerB.expenses - partnerB.settlementPaid;
+        
+        return { partnerA: partnerANetFlow, partnerB: partnerBNetFlow };
     }
 
     calculateBalances(transactions) {
@@ -464,7 +505,14 @@ class BusinessCalculator {
         document.getElementById('projectName').textContent = project.name;
         const markSettledBtn = document.getElementById('markSettledBtn');
         const summaryActions = document.getElementById('summaryActions');
-        if (project.isSettled) {
+        
+        // Check actual balance state using net flows
+        const netFlows = this.calculateNetFlow(transactions, true);
+        const netFlowDifference = Math.abs(netFlows.partnerA - netFlows.partnerB);
+        const isActuallySettled = netFlowDifference < 0.01;
+        
+        // Update button based on actual state (but keep project.isSettled flag for user preference)
+        if (isActuallySettled) {
             markSettledBtn.textContent = 'Mark as Unsettled';
             markSettledBtn.classList.add('settled');
         } else {
@@ -486,41 +534,44 @@ class BusinessCalculator {
         const project = this.getCurrentProject();
         if (!project) return;
 
-        // If project is marked as settled, show that no settlement is needed
-        if (project.isSettled) {
-            const message = document.createElement('div');
-            message.className = 'settlement-message';
+        // Calculate net flows for both partners (including all settlements)
+        const netFlows = this.calculateNetFlow(project.transactions, true);
+        const partnerANetFlow = netFlows.partnerA;
+        const partnerBNetFlow = netFlows.partnerB;
+        
+        // Check if net flows are equal (within 0.01 tolerance)
+        const netFlowDifference = Math.abs(partnerANetFlow - partnerBNetFlow);
+        
+        // Calculate settlement amount needed
+        const settlementAmount = netFlowDifference / 2;
+        
+        // Always show settlement message (either settled or needs settlement)
+        const message = document.createElement('div');
+        message.className = 'settlement-message';
+        
+        if (netFlowDifference < 0.01) {
+            // Accounts are truly balanced
             message.style.cssText = 'margin-top: 15px; padding: 15px; background: #d4edda; border-radius: 8px; border-left: 4px solid #28a745;';
             message.innerHTML = `
                 <strong>Settlement:</strong> Project has been settled. No payment needed.
             `;
-            settlementContainer.appendChild(message);
-            return;
-        }
-
-        // Calculate settlement based on balances excluding settlement transactions
-        // This shows what settlement is needed BEFORE settlement is applied
-        const nonSettlementTransactions = project.transactions.filter(t => t.type !== 'settlement');
-        const balancesBeforeSettlement = this.calculateBalances(nonSettlementTransactions);
-        const settlementAmount = Math.max(Math.abs(balancesBeforeSettlement.partnerA.netBalance), Math.abs(balancesBeforeSettlement.partnerB.netBalance));
-        
-        if (settlementAmount > 0.01) {
-            const message = document.createElement('div');
-            message.className = 'settlement-message';
+        } else {
+            // Settlement needed
             message.style.cssText = 'margin-top: 15px; padding: 15px; background: #fff3cd; border-radius: 8px; border-left: 4px solid #ffc107;';
             
-            if (balancesBeforeSettlement.partnerA.netBalance > 0) {
-                message.innerHTML = `
-                    <strong>Settlement:</strong> ${this.settings.partnerBName} should pay ${this.settings.partnerAName} <strong>$${settlementAmount.toFixed(2)}</strong> to balance accounts.
-                `;
-            } else if (balancesBeforeSettlement.partnerB.netBalance > 0) {
+            // Partner with higher net flow pays the partner with lower net flow
+            if (partnerANetFlow > partnerBNetFlow) {
                 message.innerHTML = `
                     <strong>Settlement:</strong> ${this.settings.partnerAName} should pay ${this.settings.partnerBName} <strong>$${settlementAmount.toFixed(2)}</strong> to balance accounts.
                 `;
+            } else {
+                message.innerHTML = `
+                    <strong>Settlement:</strong> ${this.settings.partnerBName} should pay ${this.settings.partnerAName} <strong>$${settlementAmount.toFixed(2)}</strong> to balance accounts.
+                `;
             }
-            
-            settlementContainer.appendChild(message);
         }
+        
+        settlementContainer.appendChild(message);
     }
 
     renderTransactions() {
@@ -730,20 +781,24 @@ class BusinessCalculator {
         
         // If marking as settled (not already settled), add settlement transaction
         if (!project.isSettled) {
-            // Calculate balances excluding existing settlement transactions
+            // Calculate net flows excluding existing settlement transactions
             const nonSettlementTransactions = project.transactions.filter(t => t.type !== 'settlement');
-            const balances = this.calculateBalances(nonSettlementTransactions);
-            const settlementAmount = Math.max(Math.abs(balances.partnerA.netBalance), Math.abs(balances.partnerB.netBalance));
+            const netFlows = this.calculateNetFlow(nonSettlementTransactions, false);
+            const partnerANetFlow = netFlows.partnerA;
+            const partnerBNetFlow = netFlows.partnerB;
+            
+            const netFlowDifference = Math.abs(partnerANetFlow - partnerBNetFlow);
+            const settlementAmount = netFlowDifference / 2;
             
             if (settlementAmount > 0.01) {
-                // Determine who pays whom
+                // Determine who pays whom - partner with higher net flow pays partner with lower net flow
                 let payer, receiver, description;
-                if (balances.partnerA.netBalance > 0) {
-                    payer = this.settings.partnerBName;
-                    receiver = this.settings.partnerAName;
-                } else {
+                if (partnerANetFlow > partnerBNetFlow) {
                     payer = this.settings.partnerAName;
                     receiver = this.settings.partnerBName;
+                } else {
+                    payer = this.settings.partnerBName;
+                    receiver = this.settings.partnerAName;
                 }
                 
                 description = `Settlement payment from ${payer} to ${receiver}`;
