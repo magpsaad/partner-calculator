@@ -412,9 +412,17 @@ class BusinessCalculator {
         const revenueCard = document.getElementById('revenueFormCard');
         const settlementCard = document.getElementById('settlementFormCard');
         
-        if (expenseCard) expenseCard.style.display = 'block';
-        if (revenueCard) revenueCard.style.display = 'none';
-        if (settlementCard) settlementCard.style.display = 'none';
+        // Toggle expense form
+        if (expenseCard) {
+            if (expenseCard.style.display === 'block') {
+                expenseCard.style.display = 'none';
+            } else {
+                expenseCard.style.display = 'block';
+                // Hide other forms
+                if (revenueCard) revenueCard.style.display = 'none';
+                if (settlementCard) settlementCard.style.display = 'none';
+            }
+        }
     }
 
     showRevenueForm() {
@@ -423,9 +431,17 @@ class BusinessCalculator {
         const revenueCard = document.getElementById('revenueFormCard');
         const settlementCard = document.getElementById('settlementFormCard');
         
-        if (expenseCard) expenseCard.style.display = 'none';
-        if (revenueCard) revenueCard.style.display = 'block';
-        if (settlementCard) settlementCard.style.display = 'none';
+        // Toggle revenue form
+        if (revenueCard) {
+            if (revenueCard.style.display === 'block') {
+                revenueCard.style.display = 'none';
+            } else {
+                revenueCard.style.display = 'block';
+                // Hide other forms
+                if (expenseCard) expenseCard.style.display = 'none';
+                if (settlementCard) settlementCard.style.display = 'none';
+            }
+        }
     }
 
     showSettlementForm() {
@@ -434,9 +450,17 @@ class BusinessCalculator {
         const revenueCard = document.getElementById('revenueFormCard');
         const settlementCard = document.getElementById('settlementFormCard');
         
-        if (expenseCard) expenseCard.style.display = 'none';
-        if (revenueCard) revenueCard.style.display = 'none';
-        if (settlementCard) settlementCard.style.display = 'block';
+        // Toggle settlement form
+        if (settlementCard) {
+            if (settlementCard.style.display === 'block') {
+                settlementCard.style.display = 'none';
+            } else {
+                settlementCard.style.display = 'block';
+                // Hide other forms
+                if (expenseCard) expenseCard.style.display = 'none';
+                if (revenueCard) revenueCard.style.display = 'none';
+            }
+        }
     }
 
     calculateNetFlow(transactions, includeSettlements = true) {
