@@ -161,6 +161,11 @@ header h1 {
     font-size: 1.3rem;
 }
 
+.summary-header .btn-report {
+    margin-left: auto;
+    flex-shrink: 0;
+}
+
 .summary-actions {
     display: flex;
     gap: 8px;
@@ -655,6 +660,33 @@ header h1 {
 .modal-footer .btn {
     width: auto;
     padding: 10px 20px;
+}
+
+.report-summary {
+    padding: 20px 0;
+}
+
+.report-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 0;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.report-row:last-child {
+    border-bottom: none;
+}
+
+.report-label {
+    font-weight: 600;
+    color: #333;
+    font-size: 1.1rem;
+}
+
+.report-value {
+    font-size: 1.2rem;
+    font-weight: 700;
 }
 
 @media (max-width: 1024px) {

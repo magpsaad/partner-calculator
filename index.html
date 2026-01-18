@@ -27,6 +27,7 @@
         <div class="summary-card">
             <div class="summary-header">
                 <h2 id="projectName">Select a Project</h2>
+                <button class="btn-icon btn-report" id="allProjectsReportBtn" title="View All Projects Report">📊</button>
             </div>
             <div id="noProjectMessage" style="display: none; padding: 20px; text-align: center; color: #666;">
                 <p>Please select a project from the dropdown above or create a new one to get started.</p>
@@ -234,6 +235,35 @@
                 <button class="btn btn-secondary" id="cancelEditProjectBtn">Cancel</button>
                 <button class="btn btn-revenue" id="saveProjectBtn">Save Changes</button>
                 <button class="btn btn-expense" id="deleteProjectFromModalBtn">Delete Project</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- All Projects Report Modal -->
+    <div class="modal" id="allProjectsReportModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>All Projects Report</h2>
+                <button class="modal-close" id="closeAllProjectsReportBtn">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="report-summary">
+                    <div class="report-row">
+                        <span class="report-label">Total Expenses (All Projects):</span>
+                        <span class="report-value expense-total" id="allProjectsTotalExpenses">$0.00</span>
+                    </div>
+                    <div class="report-row">
+                        <span class="report-label">Total Revenue (All Projects):</span>
+                        <span class="report-value revenue-total" id="allProjectsTotalRevenue">$0.00</span>
+                    </div>
+                    <div class="report-row">
+                        <span class="report-label">Net Profit (All Projects):</span>
+                        <span class="report-value" id="allProjectsNetProfit">$0.00</span>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" id="closeAllProjectsReportBtn2">Close</button>
             </div>
         </div>
     </div>

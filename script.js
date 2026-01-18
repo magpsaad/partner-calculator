@@ -119,6 +119,27 @@ class BusinessCalculator {
         } else {
             console.error('settingsBtn not found');
         }
+
+        // All Projects Report button
+        const allProjectsReportBtn = document.getElementById('allProjectsReportBtn');
+        if (allProjectsReportBtn) {
+            allProjectsReportBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                this.showAllProjectsReport();
+            });
+        }
+
+        // Close All Projects Report modal buttons
+        const closeAllProjectsReportBtn = document.getElementById('closeAllProjectsReportBtn');
+        const closeAllProjectsReportBtn2 = document.getElementById('closeAllProjectsReportBtn2');
+        if (closeAllProjectsReportBtn) {
+            closeAllProjectsReportBtn.addEventListener('click', () => this.hideAllProjectsReport());
+        }
+        if (closeAllProjectsReportBtn2) {
+            closeAllProjectsReportBtn2.addEventListener('click', () => this.hideAllProjectsReport());
+        }
+
         document.getElementById('saveSettingsBtn').addEventListener('click', () => this.saveSettings());
         document.getElementById('cancelSettingsBtn').addEventListener('click', () => this.hideSettingsModal());
         document.getElementById('closeSettingsBtn').addEventListener('click', () => this.hideSettingsModal());
@@ -641,6 +662,10 @@ class BusinessCalculator {
         // Update project name
         document.getElementById('projectName').textContent = project.name;
 
+        // Show report button when project is selected
+        const reportBtn = document.getElementById('allProjectsReportBtn');
+        if (reportBtn) reportBtn.style.display = 'block';
+
         // Add settlement message
         this.addSettlementMessage(balances);
     }
@@ -863,6 +888,10 @@ class BusinessCalculator {
         document.getElementById('transactionsList').innerHTML = '<div class="empty-state"><p>Select a project to view transactions.</p></div>';
         const balanceSection = document.getElementById('balanceSection');
         if (balanceSection) balanceSection.style.display = 'none';
+        
+        // Hide report button when no project is selected
+        const reportBtn = document.getElementById('allProjectsReportBtn');
+        if (reportBtn) reportBtn.style.display = 'none';
     }
 
     async createProject() {
@@ -1023,6 +1052,52 @@ class BusinessCalculator {
             this.workspaceAuth.logout();
             window.location.href = 'login.html';
         }
+    }
+
+    calculateAllProjectsTotals() {
+        let totalExpenses = 0;
+        let totalRevenue = 0;
+
+        // Iterate through all projects
+        this.projects.forEach(project => {
+            if (project.transactions && project.transactions.length > 0) {
+                project.transactions.forEach(transaction => {
+                    if (transaction.type === 'expense') {
+                        totalExpenses += transaction.amount || 0;
+                    } else if (transaction.type === 'revenue') {
+                        totalRevenue += transaction.amount || 0;
+                    }
+                    // Settlement transactions are excluded from the report
+                });
+            }
+        });
+
+        const netProfit = totalRevenue - totalExpenses;
+
+        return {
+            totalExpenses: totalExpenses,
+            totalRevenue: totalRevenue,
+            netProfit: netProfit
+        };
+    }
+
+    showAllProjectsReport() {
+        const totals = this.calculateAllProjectsTotals();
+
+        // Update modal with calculated values
+        document.getElementById('allProjectsTotalExpenses').textContent = `$${totals.totalExpenses.toFixed(2)}`;
+        document.getElementById('allProjectsTotalRevenue').textContent = `$${totals.totalRevenue.toFixed(2)}`;
+        
+        const netProfitEl = document.getElementById('allProjectsNetProfit');
+        netProfitEl.textContent = `$${totals.netProfit.toFixed(2)}`;
+        netProfitEl.style.color = totals.netProfit >= 0 ? '#27ae60' : '#e74c3c';
+
+        // Display the modal
+        document.getElementById('allProjectsReportModal').style.display = 'block';
+    }
+
+    hideAllProjectsReport() {
+        document.getElementById('allProjectsReportModal').style.display = 'none';
     }
 }
 
