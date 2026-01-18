@@ -329,9 +329,11 @@ header h1 {
 
 .form-buttons-row {
     display: flex;
+    flex-direction: row;
     gap: 10px;
     justify-content: center;
     margin-bottom: 20px;
+    width: 100%;
 }
 
 .form-buttons-row .btn {
@@ -340,6 +342,10 @@ header h1 {
     padding: 12px 24px;
     font-size: 1rem;
     font-weight: 600;
+    cursor: pointer;
+    pointer-events: auto;
+    position: relative;
+    z-index: 10;
 }
 
 .form-section {
@@ -653,11 +659,15 @@ header h1 {
 
 @media (max-width: 1024px) {
     .form-buttons-row {
-        flex-direction: column;
+        flex-direction: row;
+        flex-wrap: wrap;
     }
     
     .form-buttons-row .btn {
-        max-width: 100%;
+        max-width: calc(33.33% - 7px);
+        min-width: 100px;
+        font-size: 0.9rem;
+        padding: 10px 15px;
     }
 
     .header-controls {

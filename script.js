@@ -43,9 +43,36 @@ class BusinessCalculator {
         document.getElementById('settlementForm').addEventListener('submit', (e) => this.handleSettlementSubmit(e));
         
         // Form toggle buttons
-        document.getElementById('showExpenseBtn').addEventListener('click', () => this.showExpenseForm());
-        document.getElementById('showRevenueBtn').addEventListener('click', () => this.showRevenueForm());
-        document.getElementById('showSettlementBtn').addEventListener('click', () => this.showSettlementForm());
+        const showExpenseBtn = document.getElementById('showExpenseBtn');
+        const showRevenueBtn = document.getElementById('showRevenueBtn');
+        const showSettlementBtn = document.getElementById('showSettlementBtn');
+        
+        if (showExpenseBtn) {
+            showExpenseBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                console.log('Show expense form clicked');
+                this.showExpenseForm();
+            });
+        }
+        
+        if (showRevenueBtn) {
+            showRevenueBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                console.log('Show revenue form clicked');
+                this.showRevenueForm();
+            });
+        }
+        
+        if (showSettlementBtn) {
+            showSettlementBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                console.log('Show settlement form clicked');
+                this.showSettlementForm();
+            });
+        }
         
         // Auto-fill settlement description when Paid By is selected
         document.getElementById('settlementPaidBy').addEventListener('change', (e) => {
@@ -380,21 +407,36 @@ class BusinessCalculator {
     }
 
     showExpenseForm() {
-        document.getElementById('expenseFormCard').style.display = 'block';
-        document.getElementById('revenueFormCard').style.display = 'none';
-        document.getElementById('settlementFormCard').style.display = 'none';
+        console.log('showExpenseForm called');
+        const expenseCard = document.getElementById('expenseFormCard');
+        const revenueCard = document.getElementById('revenueFormCard');
+        const settlementCard = document.getElementById('settlementFormCard');
+        
+        if (expenseCard) expenseCard.style.display = 'block';
+        if (revenueCard) revenueCard.style.display = 'none';
+        if (settlementCard) settlementCard.style.display = 'none';
     }
 
     showRevenueForm() {
-        document.getElementById('expenseFormCard').style.display = 'none';
-        document.getElementById('revenueFormCard').style.display = 'block';
-        document.getElementById('settlementFormCard').style.display = 'none';
+        console.log('showRevenueForm called');
+        const expenseCard = document.getElementById('expenseFormCard');
+        const revenueCard = document.getElementById('revenueFormCard');
+        const settlementCard = document.getElementById('settlementFormCard');
+        
+        if (expenseCard) expenseCard.style.display = 'none';
+        if (revenueCard) revenueCard.style.display = 'block';
+        if (settlementCard) settlementCard.style.display = 'none';
     }
 
     showSettlementForm() {
-        document.getElementById('expenseFormCard').style.display = 'none';
-        document.getElementById('revenueFormCard').style.display = 'none';
-        document.getElementById('settlementFormCard').style.display = 'block';
+        console.log('showSettlementForm called');
+        const expenseCard = document.getElementById('expenseFormCard');
+        const revenueCard = document.getElementById('revenueFormCard');
+        const settlementCard = document.getElementById('settlementFormCard');
+        
+        if (expenseCard) expenseCard.style.display = 'none';
+        if (revenueCard) revenueCard.style.display = 'none';
+        if (settlementCard) settlementCard.style.display = 'block';
     }
 
     calculateNetFlow(transactions, includeSettlements = true) {
