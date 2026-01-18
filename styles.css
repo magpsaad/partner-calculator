@@ -194,7 +194,7 @@ header h1 {
 }
 
 .btn-settle {
-    background: #27ae60;
+    background: #000000;
     color: white;
     padding: 10px 20px;
     border: none;
@@ -206,16 +206,8 @@ header h1 {
 }
 
 .btn-settle:hover {
-    background: #229954;
+    background: #333333;
     transform: translateY(-2px);
-}
-
-.btn-settle.settled {
-    background: #95a5a6;
-}
-
-.btn-settle.settled:hover {
-    background: #7f8c8d;
 }
 
 .summary-card h2 {

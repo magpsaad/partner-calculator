@@ -42,6 +42,18 @@ class BusinessCalculator {
         document.getElementById('revenueForm').addEventListener('submit', (e) => this.handleRevenueSubmit(e));
         document.getElementById('settlementForm').addEventListener('submit', (e) => this.handleSettlementSubmit(e));
         
+        // Auto-fill settlement description when Paid By is selected
+        document.getElementById('settlementPaidBy').addEventListener('change', (e) => {
+            const paidBy = e.target.value;
+            const descriptionField = document.getElementById('settlementDescription');
+            if (paidBy && descriptionField) {
+                const otherPartner = paidBy === this.settings.partnerAName 
+                    ? this.settings.partnerBName 
+                    : this.settings.partnerAName;
+                descriptionField.value = `paid to ${otherPartner}`;
+            }
+        });
+        
         // New Project button
         const newProjectBtn = document.getElementById('newProjectBtn');
         if (newProjectBtn) {
