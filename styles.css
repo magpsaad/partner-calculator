@@ -152,18 +152,28 @@ header h1 {
     justify-content: space-between;
     align-items: center;
     margin-bottom: 15px;
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
     gap: 8px;
 }
 
 .summary-header h2 {
     margin: 0;
     font-size: 1.3rem;
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 .summary-header .btn-report {
     margin-left: auto;
     flex-shrink: 0;
+    position: relative;
+    z-index: 10;
+    pointer-events: auto;
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
 }
 
 .summary-actions {
@@ -690,6 +700,14 @@ header h1 {
 }
 
 @media (max-width: 1024px) {
+    .summary-header {
+        flex-wrap: nowrap;
+    }
+
+    .summary-header h2 {
+        font-size: 1.1rem;
+    }
+
     .form-buttons-row {
         flex-direction: row;
         flex-wrap: wrap;

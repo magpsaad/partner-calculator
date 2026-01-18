@@ -126,8 +126,16 @@ class BusinessCalculator {
             allProjectsReportBtn.addEventListener('click', (e) => {
                 e.preventDefault();
                 e.stopPropagation();
+                console.log('Report button clicked');
                 this.showAllProjectsReport();
             });
+            // Add touch event for mobile
+            allProjectsReportBtn.addEventListener('touchstart', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                console.log('Report button touched');
+                this.showAllProjectsReport();
+            }, { passive: false });
         }
 
         // Close All Projects Report modal buttons
