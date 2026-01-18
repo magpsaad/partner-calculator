@@ -32,6 +32,7 @@ class BusinessCalculator {
         const today = new Date().toISOString().split('T')[0];
         document.getElementById('expenseDate').value = today;
         document.getElementById('revenueDate').value = today;
+        document.getElementById('settlementDate').value = today;
 
         // Update partner names in forms
         this.updatePartnerNamesInForms();
@@ -39,6 +40,7 @@ class BusinessCalculator {
         // Event listeners
         document.getElementById('expenseForm').addEventListener('submit', (e) => this.handleExpenseSubmit(e));
         document.getElementById('revenueForm').addEventListener('submit', (e) => this.handleRevenueSubmit(e));
+        document.getElementById('settlementForm').addEventListener('submit', (e) => this.handleSettlementSubmit(e));
         
         // New Project button
         const newProjectBtn = document.getElementById('newProjectBtn');
@@ -232,6 +234,8 @@ class BusinessCalculator {
         const expensePartnerB = document.getElementById('expensePartnerB');
         const revenuePartnerA = document.getElementById('revenuePartnerA');
         const revenuePartnerB = document.getElementById('revenuePartnerB');
+        const settlementPartnerA = document.getElementById('settlementPartnerA');
+        const settlementPartnerB = document.getElementById('settlementPartnerB');
         
         if (expensePartnerA) {
             expensePartnerA.textContent = this.settings.partnerAName;
@@ -248,6 +252,14 @@ class BusinessCalculator {
         if (revenuePartnerB) {
             revenuePartnerB.textContent = this.settings.partnerBName;
             revenuePartnerB.value = this.settings.partnerBName;
+        }
+        if (settlementPartnerA) {
+            settlementPartnerA.textContent = this.settings.partnerAName;
+            settlementPartnerA.value = this.settings.partnerAName;
+        }
+        if (settlementPartnerB) {
+            settlementPartnerB.textContent = this.settings.partnerBName;
+            settlementPartnerB.value = this.settings.partnerBName;
         }
     }
 
@@ -266,13 +278,6 @@ class BusinessCalculator {
         if (!project) {
             alert('Please select a project first.');
             return;
-        }
-        if (project.isSettled) {
-            if (!confirm('This project is marked as settled. Add transaction anyway?')) {
-                return;
-            }
-            // Reverse the settled flag when user confirms
-            project.isSettled = false;
         }
 
         const expense = {
@@ -300,13 +305,6 @@ class BusinessCalculator {
             alert('Please select a project first.');
             return;
         }
-        if (project.isSettled) {
-            if (!confirm('This project is marked as settled. Add transaction anyway?')) {
-                return;
-            }
-            // Reverse the settled flag when user confirms
-            project.isSettled = false;
-        }
 
         const revenue = {
             id: Date.now() + 1,
@@ -324,6 +322,41 @@ class BusinessCalculator {
         // Reset form
         e.target.reset();
         document.getElementById('revenueDate').value = new Date().toISOString().split('T')[0];
+    }
+
+    async handleSettlementSubmit(e) {
+        e.preventDefault();
+        const project = this.getCurrentProject();
+        if (!project) {
+            alert('Please select a project first.');
+            return;
+        }
+
+        const paidBy = document.getElementById('settlementPaidBy').value;
+        const amount = parseFloat(document.getElementById('settlementAmount').value);
+        
+        // Determine who receives (the other partner)
+        const receivedBy = paidBy === this.settings.partnerAName 
+            ? this.settings.partnerBName 
+            : this.settings.partnerAName;
+
+        const settlement = {
+            id: Date.now() + 2,
+            type: 'settlement',
+            paidBy: paidBy,
+            receivedBy: receivedBy,
+            amount: amount,
+            description: document.getElementById('settlementDescription').value,
+            date: document.getElementById('settlementDate').value
+        };
+
+        project.transactions.push(settlement);
+        await this.saveData();
+        this.updateDisplay();
+        
+        // Reset form
+        e.target.reset();
+        document.getElementById('settlementDate').value = new Date().toISOString().split('T')[0];
     }
 
     calculateNetFlow(transactions, includeSettlements = true) {
@@ -501,24 +534,9 @@ class BusinessCalculator {
             balanceSection.style.display = 'block';
         }
 
-        // Update project name and settlement status
+        // Update project name
         document.getElementById('projectName').textContent = project.name;
-        const markSettledBtn = document.getElementById('markSettledBtn');
         const summaryActions = document.getElementById('summaryActions');
-        
-        // Check actual balance state using net flows
-        const netFlows = this.calculateNetFlow(transactions, true);
-        const netFlowDifference = Math.abs(netFlows.partnerA - netFlows.partnerB);
-        const isActuallySettled = netFlowDifference < 0.01;
-        
-        // Update button based on actual state (but keep project.isSettled flag for user preference)
-        if (isActuallySettled) {
-            markSettledBtn.textContent = 'Mark as Unsettled';
-            markSettledBtn.classList.add('settled');
-        } else {
-            markSettledBtn.textContent = 'Mark as Settled';
-            markSettledBtn.classList.remove('settled');
-        }
         if (summaryActions) summaryActions.style.display = 'flex';
 
         // Add settlement message
@@ -636,24 +654,16 @@ class BusinessCalculator {
                     </div>
                 `;
             } else if (transaction.type === 'settlement') {
-                // Show settlement as two separate lines - one for payer, one for receiver
-                const currentPartner = this.settings.partnerAName; // We'll check which partner this is for
-                const isPayer = transaction.paidBy === this.settings.partnerAName || transaction.paidBy === this.settings.partnerBName;
-                const isReceiver = transaction.receivedBy === this.settings.partnerAName || transaction.receivedBy === this.settings.partnerBName;
-                
-                // Show both lines for settlement
                 return `
-                    <div class="transaction-item settlement">
+                    <div class="transaction-item settlement-transaction">
                         <div class="transaction-info">
-                            <div style="font-weight: 600; margin-bottom: 5px;">Settlement</div>
-                            <div class="transaction-details" style="display: flex; flex-direction: column; gap: 5px;">
-                                <div>Settlement paid by ${transaction.paidBy} on ${date}</div>
-                                <div>Settlement received by ${transaction.receivedBy} on ${date}</div>
+                            <div style="font-weight: 600; margin-bottom: 5px;">${transaction.description || 'Settlement'}</div>
+                            <div class="transaction-details">
+                                ${transaction.paidBy} paid ${transaction.receivedBy} on ${date}
                             </div>
                         </div>
-                        <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 5px;">
-                            <span class="transaction-amount" style="color: #e74c3c;">-$${transaction.amount.toFixed(2)}</span>
-                            <span class="transaction-amount" style="color: #27ae60;">+$${transaction.amount.toFixed(2)}</span>
+                        <div style="display: flex; align-items: center;">
+                            <span class="transaction-amount">$${transaction.amount.toFixed(2)}</span>
                             <button class="delete-btn" onclick="calculator.deleteTransaction(${transaction.id})">Delete</button>
                         </div>
                     </div>
@@ -724,7 +734,7 @@ class BusinessCalculator {
         sortedProjects.forEach(project => {
             const option = document.createElement('option');
             option.value = project.id;
-            option.textContent = project.name + (project.isSettled ? ' ✓' : '');
+            option.textContent = project.name;
             if (project.id === this.currentProjectId) {
                 option.selected = true;
             }
@@ -767,7 +777,6 @@ class BusinessCalculator {
             id: Date.now(),
             name: name,
             createdDate: new Date().toISOString().split('T')[0],
-            isSettled: false,
             transactions: []
         };
 
@@ -791,37 +800,6 @@ class BusinessCalculator {
         }
     }
 
-    async toggleSettlement() {
-        const project = this.getCurrentProject();
-        if (!project) return;
-        
-        // If marking as settled (not already settled), add settlement transaction
-        if (!project.isSettled) {
-            const settlement = this.calculateSettlementNeeded();
-            
-            if (settlement && !settlement.isSettled && settlement.settlementAmount > 0.01) {
-                const description = `Settlement payment from ${settlement.payer} to ${settlement.receiver}`;
-                
-                // Add as a settlement transaction
-                const settlementTransaction = {
-                    id: Date.now(),
-                    type: 'settlement',
-                    paidBy: settlement.payer,
-                    receivedBy: settlement.receiver,
-                    amount: settlement.settlementAmount,
-                    description: description,
-                    date: new Date().toISOString().split('T')[0]
-                };
-                
-                project.transactions.push(settlementTransaction);
-            }
-        }
-        
-        project.isSettled = !project.isSettled;
-        await this.saveData();
-        this.renderProjectList();
-        this.updateDisplay();
-    }
 
     showNewProjectModal() {
         document.getElementById('newProjectModal').style.display = 'block';

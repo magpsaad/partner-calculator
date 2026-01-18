@@ -28,9 +28,8 @@
             <div class="summary-header">
                 <h2 id="projectName">Select a Project</h2>
                 <div class="summary-actions" id="summaryActions" style="display: none;">
-                    <button class="btn btn-secondary btn-action-25" id="editProjectBtn" title="Edit project">✎ Edit</button>
-                    <button class="btn btn-settle btn-action-50" id="markSettledBtn">Mark as Settled</button>
-                    <button class="btn btn-expense btn-action-25" id="deleteProjectBtn" title="Delete project">Delete</button>
+                    <button class="btn btn-secondary btn-action-33" id="editProjectBtn" title="Edit project">✎ Edit</button>
+                    <button class="btn btn-expense btn-action-33" id="deleteProjectBtn" title="Delete project">Delete</button>
                 </div>
             </div>
             <div id="noProjectMessage" style="display: none; padding: 20px; text-align: center; color: #666;">
@@ -110,6 +109,33 @@
                             <input type="date" id="revenueDate" required>
                         </div>
                         <button type="submit" class="btn btn-revenue">Add Revenue</button>
+                    </form>
+                </div>
+
+                <div class="form-card">
+                    <h2>Add Interim Settlement</h2>
+                    <form id="settlementForm">
+                        <div class="form-group">
+                            <label for="settlementPaidBy">Paid By:</label>
+                            <select id="settlementPaidBy" required>
+                                <option value="">Select Partner</option>
+                                <option value="Partner A" id="settlementPartnerA">Partner A</option>
+                                <option value="Partner B" id="settlementPartnerB">Partner B</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="settlementAmount">Amount:</label>
+                            <input type="number" id="settlementAmount" step="0.01" min="0" placeholder="0.00" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="settlementDescription">Description:</label>
+                            <input type="text" id="settlementDescription" placeholder="Settlement payment description" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="settlementDate">Date:</label>
+                            <input type="date" id="settlementDate" required>
+                        </div>
+                        <button type="submit" class="btn btn-settle">Add Settlement</button>
                     </form>
                 </div>
             </div>

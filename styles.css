@@ -182,14 +182,9 @@ header h1 {
     margin: 0;
 }
 
-.btn-action-25 {
-    width: calc(23% - 3px);
-    flex: 0 0 calc(23% - 3px);
-}
-
-.btn-action-50 {
-    width: calc(48% - 3px);
-    flex: 0 0 calc(48% - 3px);
+.btn-action-33 {
+    width: calc(33% - 3px);
+    flex: 0 0 calc(33% - 3px);
 }
 
 .summary-header h2 {
@@ -686,14 +681,9 @@ header h1 {
         min-width: 0;
     }
     
-    .btn-action-25 {
-        width: calc(23% - 2px);
-        flex: 0 0 calc(23% - 2px);
-    }
-    
-    .btn-action-50 {
-        width: calc(48% - 2px);
-        flex: 0 0 calc(48% - 2px);
+    .btn-action-33 {
+        width: calc(33% - 2px);
+        flex: 0 0 calc(33% - 2px);
     }
 
     .summary-table {
