@@ -78,9 +78,7 @@ class BusinessCalculator {
         document.getElementById('saveSettingsBtn').addEventListener('click', () => this.saveSettings());
         document.getElementById('cancelSettingsBtn').addEventListener('click', () => this.hideSettingsModal());
         document.getElementById('closeSettingsBtn').addEventListener('click', () => this.hideSettingsModal());
-        document.getElementById('markSettledBtn').addEventListener('click', () => this.toggleSettlement());
         document.getElementById('clearProjectBtn').addEventListener('click', () => this.clearProjectData());
-        document.getElementById('logoutBtn')?.addEventListener('click', () => this.logout());
         document.getElementById('editProjectBtn')?.addEventListener('click', () => {
             if (this.currentProjectId) {
                 this.editProject(this.currentProjectId);
@@ -89,6 +87,11 @@ class BusinessCalculator {
         document.getElementById('deleteProjectBtn')?.addEventListener('click', () => {
             if (this.currentProjectId) {
                 this.deleteProject(this.currentProjectId);
+            }
+        });
+        document.getElementById('editProjectHeaderBtn')?.addEventListener('click', () => {
+            if (this.currentProjectId) {
+                this.editProject(this.currentProjectId);
             }
         });
         document.getElementById('projectSelector')?.addEventListener('change', (e) => {
