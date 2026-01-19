@@ -10,7 +10,7 @@
     <div class="app-layout">
         <div class="container">
             <header>
-                <div class="version-number">v1.0</div>
+                <div class="version-number">v1.1</div>
                 <h1>Partner Calculator</h1>
                 <p class="subtitle">Track expenses and revenue for equitable splits</p>
                 <div class="header-controls">
@@ -240,6 +240,53 @@
                 <button class="btn btn-secondary" id="cancelEditProjectBtn">Cancel</button>
                 <button class="btn btn-revenue" id="saveProjectBtn">Save Changes</button>
                 <button class="btn btn-expense" id="deleteProjectFromModalBtn">Delete Project</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Transaction Modal -->
+    <div class="modal" id="editTransactionModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="editTransactionModalTitle">Edit Transaction</h2>
+                <button class="modal-close" id="closeEditTransactionBtn">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="editTransactionForm">
+                    <!-- Dynamic fields based on transaction type -->
+                    <div class="form-group" id="editPaidByGroup" style="display: none;">
+                        <label id="editPaidByLabel">Paid By:</label>
+                        <select id="editPaidBy" required>
+                            <option value="">Select Partner</option>
+                            <option value="Partner A" id="editPartnerA">Partner A</option>
+                            <option value="Partner B" id="editPartnerB">Partner B</option>
+                        </select>
+                    </div>
+                    <div class="form-group" id="editReceivedByGroup" style="display: none;">
+                        <label id="editReceivedByLabel">Received By:</label>
+                        <select id="editReceivedBy" required>
+                            <option value="">Select Partner</option>
+                            <option value="Partner A" id="editReceivedPartnerA">Partner A</option>
+                            <option value="Partner B" id="editReceivedPartnerB">Partner B</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="editAmount">Amount:</label>
+                        <input type="number" id="editAmount" step="0.01" min="0" placeholder="0.00" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="editDescription">Description:</label>
+                        <input type="text" id="editDescription" placeholder="Transaction description" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="editDate">Date:</label>
+                        <input type="date" id="editDate" required>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" id="cancelEditTransactionBtn">Cancel</button>
+                <button class="btn btn-revenue" id="saveEditTransactionBtn">Save Changes</button>
             </div>
         </div>
     </div>

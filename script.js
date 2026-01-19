@@ -149,6 +149,29 @@ class BusinessCalculator {
             closeAllProjectsReportBtn2.addEventListener('click', () => this.hideAllProjectsReport());
         }
 
+        // Edit Transaction Modal buttons
+        const closeEditTransactionBtn = document.getElementById('closeEditTransactionBtn');
+        const cancelEditTransactionBtn = document.getElementById('cancelEditTransactionBtn');
+        const saveEditTransactionBtn = document.getElementById('saveEditTransactionBtn');
+        
+        if (closeEditTransactionBtn) {
+            closeEditTransactionBtn.addEventListener('click', () => this.hideEditTransactionModal());
+        }
+        if (cancelEditTransactionBtn) {
+            cancelEditTransactionBtn.addEventListener('click', () => this.hideEditTransactionModal());
+        }
+        if (saveEditTransactionBtn) {
+            saveEditTransactionBtn.addEventListener('click', () => this.handleEditTransactionSubmit());
+        }
+
+        // Close modal when clicking outside
+        window.addEventListener('click', (e) => {
+            const editModal = document.getElementById('editTransactionModal');
+            if (e.target === editModal) {
+                this.hideEditTransactionModal();
+            }
+        });
+
         document.getElementById('saveSettingsBtn').addEventListener('click', () => this.saveSettings());
         document.getElementById('cancelSettingsBtn').addEventListener('click', () => this.hideSettingsModal());
         document.getElementById('closeSettingsBtn').addEventListener('click', () => this.hideSettingsModal());
@@ -336,6 +359,9 @@ class BusinessCalculator {
             settlementPartnerB.textContent = this.settings.partnerBName;
             settlementPartnerB.value = this.settings.partnerBName;
         }
+
+        // Also update edit modal partner names
+        this.updatePartnerNamesInEditModal();
     }
 
     getCurrentProject() {
@@ -498,15 +524,19 @@ class BusinessCalculator {
             if (this.editingTransactionId) {
                 // In edit mode, always show the form
                 expenseCard.style.display = 'block';
+                expenseCard.style.visibility = 'visible';
                 // Hide other forms
                 if (revenueCard) revenueCard.style.display = 'none';
                 if (settlementCard) settlementCard.style.display = 'none';
+                console.log('Expense form should be visible, display:', expenseCard.style.display);
             } else {
                 // Toggle behavior when not in edit mode
-                if (expenseCard.style.display === 'block') {
+                const isVisible = expenseCard.style.display === 'block' || window.getComputedStyle(expenseCard).display !== 'none';
+                if (isVisible) {
                     expenseCard.style.display = 'none';
                 } else {
                     expenseCard.style.display = 'block';
+                    expenseCard.style.visibility = 'visible';
                     // Hide other forms
                     if (revenueCard) revenueCard.style.display = 'none';
                     if (settlementCard) settlementCard.style.display = 'none';
@@ -537,15 +567,19 @@ class BusinessCalculator {
             if (this.editingTransactionId) {
                 // In edit mode, always show the form
                 revenueCard.style.display = 'block';
+                revenueCard.style.visibility = 'visible';
                 // Hide other forms
                 if (expenseCard) expenseCard.style.display = 'none';
                 if (settlementCard) settlementCard.style.display = 'none';
+                console.log('Revenue form should be visible, display:', revenueCard.style.display);
             } else {
                 // Toggle behavior when not in edit mode
-                if (revenueCard.style.display === 'block') {
+                const isVisible = revenueCard.style.display === 'block' || window.getComputedStyle(revenueCard).display !== 'none';
+                if (isVisible) {
                     revenueCard.style.display = 'none';
                 } else {
                     revenueCard.style.display = 'block';
+                    revenueCard.style.visibility = 'visible';
                     // Hide other forms
                     if (expenseCard) expenseCard.style.display = 'none';
                     if (settlementCard) settlementCard.style.display = 'none';
@@ -576,15 +610,19 @@ class BusinessCalculator {
             if (this.editingTransactionId) {
                 // In edit mode, always show the form
                 settlementCard.style.display = 'block';
+                settlementCard.style.visibility = 'visible';
                 // Hide other forms
                 if (expenseCard) expenseCard.style.display = 'none';
                 if (revenueCard) revenueCard.style.display = 'none';
+                console.log('Settlement form should be visible, display:', settlementCard.style.display);
             } else {
                 // Toggle behavior when not in edit mode
-                if (settlementCard.style.display === 'block') {
+                const isVisible = settlementCard.style.display === 'block' || window.getComputedStyle(settlementCard).display !== 'none';
+                if (isVisible) {
                     settlementCard.style.display = 'none';
                 } else {
                     settlementCard.style.display = 'block';
+                    settlementCard.style.visibility = 'visible';
                     // Hide other forms
                     if (expenseCard) expenseCard.style.display = 'none';
                     if (revenueCard) revenueCard.style.display = 'none';
@@ -950,9 +988,15 @@ class BusinessCalculator {
             const transactionId = parseInt(button.getAttribute('data-transaction-id'));
             const action = button.getAttribute('data-action');
             
-            if (!transactionId || !action) return;
+            console.log('Icon button clicked:', { transactionId, action });
+            
+            if (!transactionId || !action) {
+                console.log('Missing transactionId or action');
+                return;
+            }
             
             if (action === 'edit') {
+                console.log('Calling editTransaction');
                 this.editTransaction(transactionId);
             } else if (action === 'delete') {
                 this.deleteTransaction(transactionId);
@@ -992,46 +1036,151 @@ class BusinessCalculator {
 
         this.editingTransactionId = id;
 
-        if (transaction.type === 'expense') {
-            // Pre-fill expense form
-            document.getElementById('expensePaidBy').value = transaction.paidBy;
-            document.getElementById('expenseAmount').value = transaction.amount;
-            document.getElementById('expenseDescription').value = transaction.description;
-            document.getElementById('expenseDate').value = transaction.date;
-            
-            // Update submit button text
-            const submitBtn = document.querySelector('#expenseForm button[type="submit"]');
-            if (submitBtn) submitBtn.textContent = 'Update Expense';
-            
-            // Show expense form
-            this.showExpenseForm();
-        } else if (transaction.type === 'revenue') {
-            // Pre-fill revenue form
-            document.getElementById('revenueReceivedBy').value = transaction.receivedBy;
-            document.getElementById('revenueAmount').value = transaction.amount;
-            document.getElementById('revenueDescription').value = transaction.description;
-            document.getElementById('revenueDate').value = transaction.date;
-            
-            // Update submit button text
-            const submitBtn = document.querySelector('#revenueForm button[type="submit"]');
-            if (submitBtn) submitBtn.textContent = 'Update Revenue';
-            
-            // Show revenue form
-            this.showRevenueForm();
-        } else if (transaction.type === 'settlement') {
-            // Pre-fill settlement form
-            document.getElementById('settlementPaidBy').value = transaction.paidBy;
-            document.getElementById('settlementAmount').value = transaction.amount;
-            document.getElementById('settlementDescription').value = transaction.description;
-            document.getElementById('settlementDate').value = transaction.date;
-            
-            // Update submit button text
-            const submitBtn = document.querySelector('#settlementForm button[type="submit"]');
-            if (submitBtn) submitBtn.textContent = 'Update Settlement';
-            
-            // Show settlement form
-            this.showSettlementForm();
+        // Update modal title based on transaction type
+        const modalTitle = document.getElementById('editTransactionModalTitle');
+        if (modalTitle) {
+            if (transaction.type === 'expense') {
+                modalTitle.textContent = 'Edit Expense';
+            } else if (transaction.type === 'revenue') {
+                modalTitle.textContent = 'Edit Revenue';
+            } else if (transaction.type === 'settlement') {
+                modalTitle.textContent = 'Edit Settlement';
+            }
         }
+
+        // Show/hide appropriate fields based on transaction type
+        const paidByGroup = document.getElementById('editPaidByGroup');
+        const receivedByGroup = document.getElementById('editReceivedByGroup');
+        const paidByLabel = document.getElementById('editPaidByLabel');
+        const receivedByLabel = document.getElementById('editReceivedByLabel');
+
+        if (transaction.type === 'expense') {
+            // Show "Paid By" field for expenses
+            if (paidByGroup) {
+                paidByGroup.style.display = 'block';
+                if (paidByLabel) paidByLabel.textContent = 'Paid By:';
+            }
+            if (receivedByGroup) receivedByGroup.style.display = 'none';
+            
+            // Pre-fill expense data
+            document.getElementById('editPaidBy').value = transaction.paidBy;
+        } else if (transaction.type === 'revenue') {
+            // Show "Received By" field for revenue
+            if (receivedByGroup) {
+                receivedByGroup.style.display = 'block';
+                if (receivedByLabel) receivedByLabel.textContent = 'Received By:';
+            }
+            if (paidByGroup) paidByGroup.style.display = 'none';
+            
+            // Pre-fill revenue data
+            document.getElementById('editReceivedBy').value = transaction.receivedBy;
+        } else if (transaction.type === 'settlement') {
+            // Show "Paid By" field for settlements
+            if (paidByGroup) {
+                paidByGroup.style.display = 'block';
+                if (paidByLabel) paidByLabel.textContent = 'Paid By:';
+            }
+            if (receivedByGroup) receivedByGroup.style.display = 'none';
+            
+            // Pre-fill settlement data
+            document.getElementById('editPaidBy').value = transaction.paidBy;
+        }
+
+        // Pre-fill common fields
+        document.getElementById('editAmount').value = transaction.amount;
+        document.getElementById('editDescription').value = transaction.description;
+        document.getElementById('editDate').value = transaction.date;
+
+        // Update partner names in dropdowns
+        this.updatePartnerNamesInEditModal();
+
+        // Show the modal
+        this.showEditTransactionModal();
+    }
+
+    updatePartnerNamesInEditModal() {
+        const editPartnerA = document.getElementById('editPartnerA');
+        const editPartnerB = document.getElementById('editPartnerB');
+        const editReceivedPartnerA = document.getElementById('editReceivedPartnerA');
+        const editReceivedPartnerB = document.getElementById('editReceivedPartnerB');
+        
+        if (editPartnerA) {
+            editPartnerA.textContent = this.settings.partnerAName;
+            editPartnerA.value = this.settings.partnerAName;
+        }
+        if (editPartnerB) {
+            editPartnerB.textContent = this.settings.partnerBName;
+            editPartnerB.value = this.settings.partnerBName;
+        }
+        if (editReceivedPartnerA) {
+            editReceivedPartnerA.textContent = this.settings.partnerAName;
+            editReceivedPartnerA.value = this.settings.partnerAName;
+        }
+        if (editReceivedPartnerB) {
+            editReceivedPartnerB.textContent = this.settings.partnerBName;
+            editReceivedPartnerB.value = this.settings.partnerBName;
+        }
+    }
+
+    showEditTransactionModal() {
+        const modal = document.getElementById('editTransactionModal');
+        if (modal) {
+            modal.style.display = 'block';
+        }
+    }
+
+    hideEditTransactionModal() {
+        const modal = document.getElementById('editTransactionModal');
+        if (modal) {
+            modal.style.display = 'none';
+        }
+        this.editingTransactionId = null;
+        // Reset form
+        const form = document.getElementById('editTransactionForm');
+        if (form) form.reset();
+    }
+
+    async handleEditTransactionSubmit() {
+        if (!this.editingTransactionId) return;
+
+        const project = this.getCurrentProject();
+        if (!project) return;
+
+        const transaction = project.transactions.find(t => t.id === this.editingTransactionId);
+        if (!transaction) return;
+
+        // Get form values
+        const amount = parseFloat(document.getElementById('editAmount').value);
+        const description = document.getElementById('editDescription').value;
+        const date = document.getElementById('editDate').value;
+
+        if (transaction.type === 'expense') {
+            const paidBy = document.getElementById('editPaidBy').value;
+            transaction.paidBy = paidBy;
+            transaction.amount = amount;
+            transaction.description = description;
+            transaction.date = date;
+        } else if (transaction.type === 'revenue') {
+            const receivedBy = document.getElementById('editReceivedBy').value;
+            transaction.receivedBy = receivedBy;
+            transaction.amount = amount;
+            transaction.description = description;
+            transaction.date = date;
+        } else if (transaction.type === 'settlement') {
+            const paidBy = document.getElementById('editPaidBy').value;
+            const receivedBy = paidBy === this.settings.partnerAName 
+                ? this.settings.partnerBName 
+                : this.settings.partnerAName;
+            transaction.paidBy = paidBy;
+            transaction.receivedBy = receivedBy;
+            transaction.amount = amount;
+            transaction.description = description;
+            transaction.date = date;
+        }
+
+        await this.saveData();
+        this.updateDisplay();
+        this.hideEditTransactionModal();
     }
 
     async clearProjectData() {
