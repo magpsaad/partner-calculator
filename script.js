@@ -854,8 +854,8 @@ class BusinessCalculator {
                         </div>
                         <div style="display: flex; align-items: center; gap: 8px;">
                             <span class="transaction-amount">-$${transaction.amount.toFixed(2)}</span>
-                            <button class="transaction-icon-btn" onclick="calculator.editTransaction(${transaction.id})" title="Edit transaction">✏️</button>
-                            <button class="transaction-icon-btn delete-icon-btn" onclick="calculator.deleteTransaction(${transaction.id})" title="Delete transaction">🗑️</button>
+                            <button class="transaction-icon-btn edit-icon-btn" data-transaction-id="${transaction.id}" data-action="edit" title="Edit transaction">✏️</button>
+                            <button class="transaction-icon-btn delete-icon-btn" data-transaction-id="${transaction.id}" data-action="delete" title="Delete transaction">🗑️</button>
                         </div>
                     </div>
                 `;
@@ -870,8 +870,8 @@ class BusinessCalculator {
                         </div>
                         <div style="display: flex; align-items: center; gap: 8px;">
                             <span class="transaction-amount">$${transaction.amount.toFixed(2)}</span>
-                            <button class="transaction-icon-btn" onclick="calculator.editTransaction(${transaction.id})" title="Edit transaction">✏️</button>
-                            <button class="transaction-icon-btn delete-icon-btn" onclick="calculator.deleteTransaction(${transaction.id})" title="Delete transaction">🗑️</button>
+                            <button class="transaction-icon-btn edit-icon-btn" data-transaction-id="${transaction.id}" data-action="edit" title="Edit transaction">✏️</button>
+                            <button class="transaction-icon-btn delete-icon-btn" data-transaction-id="${transaction.id}" data-action="delete" title="Delete transaction">🗑️</button>
                         </div>
                     </div>
                 `;
@@ -886,13 +886,49 @@ class BusinessCalculator {
                         </div>
                         <div style="display: flex; align-items: center; gap: 8px;">
                             <span class="transaction-amount">+$${transaction.amount.toFixed(2)}</span>
-                            <button class="transaction-icon-btn" onclick="calculator.editTransaction(${transaction.id})" title="Edit transaction">✏️</button>
-                            <button class="transaction-icon-btn delete-icon-btn" onclick="calculator.deleteTransaction(${transaction.id})" title="Delete transaction">🗑️</button>
+                            <button class="transaction-icon-btn edit-icon-btn" data-transaction-id="${transaction.id}" data-action="edit" title="Edit transaction">✏️</button>
+                            <button class="transaction-icon-btn delete-icon-btn" data-transaction-id="${transaction.id}" data-action="delete" title="Delete transaction">🗑️</button>
                         </div>
                     </div>
                 `;
             }
         }).join('');
+        
+        // Setup event delegation for icon buttons
+        this.setupTransactionIconButtons();
+    }
+
+    setupTransactionIconButtons() {
+        const transactionsList = document.getElementById('transactionsList');
+        if (!transactionsList) return;
+
+        // Remove existing event listeners by cloning
+        const newList = transactionsList.cloneNode(true);
+        transactionsList.parentNode.replaceChild(newList, transactionsList);
+
+        // Use event delegation for both click and touch events
+        const handleIconClick = (e) => {
+            const button = e.target.closest('.transaction-icon-btn');
+            if (!button) return;
+            
+            e.preventDefault();
+            e.stopPropagation();
+            
+            const transactionId = parseInt(button.getAttribute('data-transaction-id'));
+            const action = button.getAttribute('data-action');
+            
+            if (!transactionId || !action) return;
+            
+            if (action === 'edit') {
+                this.editTransaction(transactionId);
+            } else if (action === 'delete') {
+                this.deleteTransaction(transactionId);
+            }
+        };
+
+        // Add both click and touchstart listeners
+        newList.addEventListener('click', handleIconClick);
+        newList.addEventListener('touchstart', handleIconClick, { passive: false });
     }
 
     switchTab(tab) {

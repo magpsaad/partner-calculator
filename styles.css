@@ -591,6 +591,10 @@ header h1 {
     justify-content: center;
     -webkit-tap-highlight-color: transparent;
     touch-action: manipulation;
+    pointer-events: auto;
+    user-select: none;
+    position: relative;
+    z-index: 10;
 }
 
 .transaction-icon-btn:hover {
