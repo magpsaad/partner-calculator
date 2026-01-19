@@ -493,15 +493,24 @@ class BusinessCalculator {
             }
         }
         
-        // Toggle expense form
+        // Show expense form (always show if in edit mode, otherwise toggle)
         if (expenseCard) {
-            if (expenseCard.style.display === 'block' && !this.editingTransactionId) {
-                expenseCard.style.display = 'none';
-            } else {
+            if (this.editingTransactionId) {
+                // In edit mode, always show the form
                 expenseCard.style.display = 'block';
                 // Hide other forms
                 if (revenueCard) revenueCard.style.display = 'none';
                 if (settlementCard) settlementCard.style.display = 'none';
+            } else {
+                // Toggle behavior when not in edit mode
+                if (expenseCard.style.display === 'block') {
+                    expenseCard.style.display = 'none';
+                } else {
+                    expenseCard.style.display = 'block';
+                    // Hide other forms
+                    if (revenueCard) revenueCard.style.display = 'none';
+                    if (settlementCard) settlementCard.style.display = 'none';
+                }
             }
         }
     }
@@ -523,15 +532,24 @@ class BusinessCalculator {
             }
         }
         
-        // Toggle revenue form
+        // Show revenue form (always show if in edit mode, otherwise toggle)
         if (revenueCard) {
-            if (revenueCard.style.display === 'block' && !this.editingTransactionId) {
-                revenueCard.style.display = 'none';
-            } else {
+            if (this.editingTransactionId) {
+                // In edit mode, always show the form
                 revenueCard.style.display = 'block';
                 // Hide other forms
                 if (expenseCard) expenseCard.style.display = 'none';
                 if (settlementCard) settlementCard.style.display = 'none';
+            } else {
+                // Toggle behavior when not in edit mode
+                if (revenueCard.style.display === 'block') {
+                    revenueCard.style.display = 'none';
+                } else {
+                    revenueCard.style.display = 'block';
+                    // Hide other forms
+                    if (expenseCard) expenseCard.style.display = 'none';
+                    if (settlementCard) settlementCard.style.display = 'none';
+                }
             }
         }
     }
@@ -553,15 +571,24 @@ class BusinessCalculator {
             }
         }
         
-        // Toggle settlement form
+        // Show settlement form (always show if in edit mode, otherwise toggle)
         if (settlementCard) {
-            if (settlementCard.style.display === 'block' && !this.editingTransactionId) {
-                settlementCard.style.display = 'none';
-            } else {
+            if (this.editingTransactionId) {
+                // In edit mode, always show the form
                 settlementCard.style.display = 'block';
                 // Hide other forms
                 if (expenseCard) expenseCard.style.display = 'none';
                 if (revenueCard) revenueCard.style.display = 'none';
+            } else {
+                // Toggle behavior when not in edit mode
+                if (settlementCard.style.display === 'block') {
+                    settlementCard.style.display = 'none';
+                } else {
+                    settlementCard.style.display = 'block';
+                    // Hide other forms
+                    if (expenseCard) expenseCard.style.display = 'none';
+                    if (revenueCard) revenueCard.style.display = 'none';
+                }
             }
         }
     }
