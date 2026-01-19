@@ -575,6 +575,44 @@ header h1 {
     background: #c0392b;
 }
 
+.transaction-icon-btn {
+    background: white;
+    border: 1px solid #ddd;
+    color: #667eea;
+    padding: 6px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: all 0.3s;
+    min-width: 32px;
+    min-height: 32px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+}
+
+.transaction-icon-btn:hover {
+    background: #f0f0f0;
+    border-color: #667eea;
+    transform: scale(1.1);
+}
+
+.transaction-icon-btn:active {
+    transform: scale(0.95);
+}
+
+.transaction-icon-btn.delete-icon-btn {
+    color: #e74c3c;
+    border-color: #e74c3c;
+}
+
+.transaction-icon-btn.delete-icon-btn:hover {
+    background: #ffeaea;
+    border-color: #c0392b;
+}
+
 .empty-state {
     text-align: center;
     padding: 40px;

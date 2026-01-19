@@ -9,6 +9,7 @@ class BusinessCalculator {
         this.currentTab = 'all';
         this.isSyncing = false;
         this.syncUnsubscribe = null;
+        this.editingTransactionId = null;
         this.init();
     }
 
@@ -354,8 +355,8 @@ class BusinessCalculator {
             return;
         }
 
-        const expense = {
-            id: Date.now(),
+        const expenseData = {
+            id: this.editingTransactionId || Date.now(),
             type: 'expense',
             paidBy: document.getElementById('expensePaidBy').value,
             amount: parseFloat(document.getElementById('expenseAmount').value),
@@ -363,13 +364,27 @@ class BusinessCalculator {
             date: document.getElementById('expenseDate').value
         };
 
-        project.transactions.push(expense);
+        if (this.editingTransactionId) {
+            // Update existing transaction
+            const index = project.transactions.findIndex(t => t.id === this.editingTransactionId);
+            if (index !== -1) {
+                project.transactions[index] = expenseData;
+            }
+            this.editingTransactionId = null;
+        } else {
+            // Add new transaction
+            project.transactions.push(expenseData);
+        }
+
         await this.saveData();
         this.updateDisplay();
         
-        // Reset form
+        // Reset form and button text
         e.target.reset();
         document.getElementById('expenseDate').value = new Date().toISOString().split('T')[0];
+        const submitBtn = document.querySelector('#expenseForm button[type="submit"]');
+        if (submitBtn) submitBtn.textContent = 'Add Expense';
+        document.getElementById('expenseFormCard').style.display = 'none';
     }
 
     async handleRevenueSubmit(e) {
@@ -380,8 +395,8 @@ class BusinessCalculator {
             return;
         }
 
-        const revenue = {
-            id: Date.now() + 1,
+        const revenueData = {
+            id: this.editingTransactionId || Date.now() + 1,
             type: 'revenue',
             receivedBy: document.getElementById('revenueReceivedBy').value,
             amount: parseFloat(document.getElementById('revenueAmount').value),
@@ -389,13 +404,26 @@ class BusinessCalculator {
             date: document.getElementById('revenueDate').value
         };
 
-        project.transactions.push(revenue);
+        if (this.editingTransactionId) {
+            // Update existing transaction
+            const index = project.transactions.findIndex(t => t.id === this.editingTransactionId);
+            if (index !== -1) {
+                project.transactions[index] = revenueData;
+            }
+            this.editingTransactionId = null;
+        } else {
+            // Add new transaction
+            project.transactions.push(revenueData);
+        }
+
         await this.saveData();
         this.updateDisplay();
         
-        // Reset form and hide it
+        // Reset form, button text, and hide it
         e.target.reset();
         document.getElementById('revenueDate').value = new Date().toISOString().split('T')[0];
+        const submitBtn = document.querySelector('#revenueForm button[type="submit"]');
+        if (submitBtn) submitBtn.textContent = 'Add Revenue';
         document.getElementById('revenueFormCard').style.display = 'none';
     }
 
@@ -415,8 +443,8 @@ class BusinessCalculator {
             ? this.settings.partnerBName 
             : this.settings.partnerAName;
 
-        const settlement = {
-            id: Date.now() + 2,
+        const settlementData = {
+            id: this.editingTransactionId || Date.now() + 2,
             type: 'settlement',
             paidBy: paidBy,
             receivedBy: receivedBy,
@@ -425,13 +453,26 @@ class BusinessCalculator {
             date: document.getElementById('settlementDate').value
         };
 
-        project.transactions.push(settlement);
+        if (this.editingTransactionId) {
+            // Update existing transaction
+            const index = project.transactions.findIndex(t => t.id === this.editingTransactionId);
+            if (index !== -1) {
+                project.transactions[index] = settlementData;
+            }
+            this.editingTransactionId = null;
+        } else {
+            // Add new transaction
+            project.transactions.push(settlementData);
+        }
+
         await this.saveData();
         this.updateDisplay();
         
-        // Reset form and hide it
+        // Reset form, button text, and hide it
         e.target.reset();
         document.getElementById('settlementDate').value = new Date().toISOString().split('T')[0];
+        const submitBtn = document.querySelector('#settlementForm button[type="submit"]');
+        if (submitBtn) submitBtn.textContent = 'Add Settlement';
         document.getElementById('settlementFormCard').style.display = 'none';
     }
 
@@ -441,9 +482,20 @@ class BusinessCalculator {
         const revenueCard = document.getElementById('revenueFormCard');
         const settlementCard = document.getElementById('settlementFormCard');
         
+        // Reset edit mode if switching forms
+        if (this.editingTransactionId) {
+            const transaction = this.getCurrentProject()?.transactions.find(t => t.id === this.editingTransactionId);
+            if (transaction && transaction.type !== 'expense') {
+                this.editingTransactionId = null;
+                // Reset button text
+                const submitBtn = document.querySelector('#expenseForm button[type="submit"]');
+                if (submitBtn) submitBtn.textContent = 'Add Expense';
+            }
+        }
+        
         // Toggle expense form
         if (expenseCard) {
-            if (expenseCard.style.display === 'block') {
+            if (expenseCard.style.display === 'block' && !this.editingTransactionId) {
                 expenseCard.style.display = 'none';
             } else {
                 expenseCard.style.display = 'block';
@@ -460,9 +512,20 @@ class BusinessCalculator {
         const revenueCard = document.getElementById('revenueFormCard');
         const settlementCard = document.getElementById('settlementFormCard');
         
+        // Reset edit mode if switching forms
+        if (this.editingTransactionId) {
+            const transaction = this.getCurrentProject()?.transactions.find(t => t.id === this.editingTransactionId);
+            if (transaction && transaction.type !== 'revenue') {
+                this.editingTransactionId = null;
+                // Reset button text
+                const submitBtn = document.querySelector('#revenueForm button[type="submit"]');
+                if (submitBtn) submitBtn.textContent = 'Add Revenue';
+            }
+        }
+        
         // Toggle revenue form
         if (revenueCard) {
-            if (revenueCard.style.display === 'block') {
+            if (revenueCard.style.display === 'block' && !this.editingTransactionId) {
                 revenueCard.style.display = 'none';
             } else {
                 revenueCard.style.display = 'block';
@@ -479,9 +542,20 @@ class BusinessCalculator {
         const revenueCard = document.getElementById('revenueFormCard');
         const settlementCard = document.getElementById('settlementFormCard');
         
+        // Reset edit mode if switching forms
+        if (this.editingTransactionId) {
+            const transaction = this.getCurrentProject()?.transactions.find(t => t.id === this.editingTransactionId);
+            if (transaction && transaction.type !== 'settlement') {
+                this.editingTransactionId = null;
+                // Reset button text
+                const submitBtn = document.querySelector('#settlementForm button[type="submit"]');
+                if (submitBtn) submitBtn.textContent = 'Add Settlement';
+            }
+        }
+        
         // Toggle settlement form
         if (settlementCard) {
-            if (settlementCard.style.display === 'block') {
+            if (settlementCard.style.display === 'block' && !this.editingTransactionId) {
                 settlementCard.style.display = 'none';
             } else {
                 settlementCard.style.display = 'block';
@@ -778,9 +852,10 @@ class BusinessCalculator {
                                 Paid by ${transaction.paidBy} on ${date}
                             </div>
                         </div>
-                        <div style="display: flex; align-items: center;">
+                        <div style="display: flex; align-items: center; gap: 8px;">
                             <span class="transaction-amount">-$${transaction.amount.toFixed(2)}</span>
-                            <button class="delete-btn" onclick="calculator.deleteTransaction(${transaction.id})">Delete</button>
+                            <button class="transaction-icon-btn" onclick="calculator.editTransaction(${transaction.id})" title="Edit transaction">✏️</button>
+                            <button class="transaction-icon-btn delete-icon-btn" onclick="calculator.deleteTransaction(${transaction.id})" title="Delete transaction">🗑️</button>
                         </div>
                     </div>
                 `;
@@ -793,9 +868,10 @@ class BusinessCalculator {
                                 ${transaction.paidBy} paid ${transaction.receivedBy} on ${date}
                             </div>
                         </div>
-                        <div style="display: flex; align-items: center;">
+                        <div style="display: flex; align-items: center; gap: 8px;">
                             <span class="transaction-amount">$${transaction.amount.toFixed(2)}</span>
-                            <button class="delete-btn" onclick="calculator.deleteTransaction(${transaction.id})">Delete</button>
+                            <button class="transaction-icon-btn" onclick="calculator.editTransaction(${transaction.id})" title="Edit transaction">✏️</button>
+                            <button class="transaction-icon-btn delete-icon-btn" onclick="calculator.deleteTransaction(${transaction.id})" title="Delete transaction">🗑️</button>
                         </div>
                     </div>
                 `;
@@ -808,9 +884,10 @@ class BusinessCalculator {
                                 Received by ${transaction.receivedBy} on ${date}
                             </div>
                         </div>
-                        <div style="display: flex; align-items: center;">
+                        <div style="display: flex; align-items: center; gap: 8px;">
                             <span class="transaction-amount">+$${transaction.amount.toFixed(2)}</span>
-                            <button class="delete-btn" onclick="calculator.deleteTransaction(${transaction.id})">Delete</button>
+                            <button class="transaction-icon-btn" onclick="calculator.editTransaction(${transaction.id})" title="Edit transaction">✏️</button>
+                            <button class="transaction-icon-btn delete-icon-btn" onclick="calculator.deleteTransaction(${transaction.id})" title="Delete transaction">🗑️</button>
                         </div>
                     </div>
                 `;
@@ -834,6 +911,57 @@ class BusinessCalculator {
             project.transactions = project.transactions.filter(t => t.id !== id);
             await this.saveData();
             this.updateDisplay();
+        }
+    }
+
+    editTransaction(id) {
+        const project = this.getCurrentProject();
+        if (!project) return;
+
+        const transaction = project.transactions.find(t => t.id === id);
+        if (!transaction) return;
+
+        this.editingTransactionId = id;
+
+        if (transaction.type === 'expense') {
+            // Pre-fill expense form
+            document.getElementById('expensePaidBy').value = transaction.paidBy;
+            document.getElementById('expenseAmount').value = transaction.amount;
+            document.getElementById('expenseDescription').value = transaction.description;
+            document.getElementById('expenseDate').value = transaction.date;
+            
+            // Update submit button text
+            const submitBtn = document.querySelector('#expenseForm button[type="submit"]');
+            if (submitBtn) submitBtn.textContent = 'Update Expense';
+            
+            // Show expense form
+            this.showExpenseForm();
+        } else if (transaction.type === 'revenue') {
+            // Pre-fill revenue form
+            document.getElementById('revenueReceivedBy').value = transaction.receivedBy;
+            document.getElementById('revenueAmount').value = transaction.amount;
+            document.getElementById('revenueDescription').value = transaction.description;
+            document.getElementById('revenueDate').value = transaction.date;
+            
+            // Update submit button text
+            const submitBtn = document.querySelector('#revenueForm button[type="submit"]');
+            if (submitBtn) submitBtn.textContent = 'Update Revenue';
+            
+            // Show revenue form
+            this.showRevenueForm();
+        } else if (transaction.type === 'settlement') {
+            // Pre-fill settlement form
+            document.getElementById('settlementPaidBy').value = transaction.paidBy;
+            document.getElementById('settlementAmount').value = transaction.amount;
+            document.getElementById('settlementDescription').value = transaction.description;
+            document.getElementById('settlementDate').value = transaction.date;
+            
+            // Update submit button text
+            const submitBtn = document.querySelector('#settlementForm button[type="submit"]');
+            if (submitBtn) submitBtn.textContent = 'Update Settlement';
+            
+            // Show settlement form
+            this.showSettlementForm();
         }
     }
 
