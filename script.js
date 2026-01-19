@@ -852,10 +852,12 @@ class BusinessCalculator {
                                 Paid by ${transaction.paidBy} on ${date}
                             </div>
                         </div>
-                        <div style="display: flex; align-items: center; gap: 8px;">
+                        <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 8px;">
                             <span class="transaction-amount">-$${transaction.amount.toFixed(2)}</span>
-                            <button class="transaction-icon-btn edit-icon-btn" data-transaction-id="${transaction.id}" data-action="edit" title="Edit transaction">✏️</button>
-                            <button class="transaction-icon-btn delete-icon-btn" data-transaction-id="${transaction.id}" data-action="delete" title="Delete transaction">🗑️</button>
+                            <div style="display: flex; gap: 8px;">
+                                <button class="transaction-icon-btn edit-icon-btn" data-transaction-id="${transaction.id}" data-action="edit" title="Edit transaction">✏️</button>
+                                <button class="transaction-icon-btn delete-icon-btn" data-transaction-id="${transaction.id}" data-action="delete" title="Delete transaction">🗑️</button>
+                            </div>
                         </div>
                     </div>
                 `;
@@ -868,10 +870,12 @@ class BusinessCalculator {
                                 ${transaction.paidBy} paid ${transaction.receivedBy} on ${date}
                             </div>
                         </div>
-                        <div style="display: flex; align-items: center; gap: 8px;">
+                        <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 8px;">
                             <span class="transaction-amount">$${transaction.amount.toFixed(2)}</span>
-                            <button class="transaction-icon-btn edit-icon-btn" data-transaction-id="${transaction.id}" data-action="edit" title="Edit transaction">✏️</button>
-                            <button class="transaction-icon-btn delete-icon-btn" data-transaction-id="${transaction.id}" data-action="delete" title="Delete transaction">🗑️</button>
+                            <div style="display: flex; gap: 8px;">
+                                <button class="transaction-icon-btn edit-icon-btn" data-transaction-id="${transaction.id}" data-action="edit" title="Edit transaction">✏️</button>
+                                <button class="transaction-icon-btn delete-icon-btn" data-transaction-id="${transaction.id}" data-action="delete" title="Delete transaction">🗑️</button>
+                            </div>
                         </div>
                     </div>
                 `;
@@ -884,10 +888,12 @@ class BusinessCalculator {
                                 Received by ${transaction.receivedBy} on ${date}
                             </div>
                         </div>
-                        <div style="display: flex; align-items: center; gap: 8px;">
+                        <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 8px;">
                             <span class="transaction-amount">+$${transaction.amount.toFixed(2)}</span>
-                            <button class="transaction-icon-btn edit-icon-btn" data-transaction-id="${transaction.id}" data-action="edit" title="Edit transaction">✏️</button>
-                            <button class="transaction-icon-btn delete-icon-btn" data-transaction-id="${transaction.id}" data-action="delete" title="Delete transaction">🗑️</button>
+                            <div style="display: flex; gap: 8px;">
+                                <button class="transaction-icon-btn edit-icon-btn" data-transaction-id="${transaction.id}" data-action="edit" title="Edit transaction">✏️</button>
+                                <button class="transaction-icon-btn delete-icon-btn" data-transaction-id="${transaction.id}" data-action="delete" title="Delete transaction">🗑️</button>
+                            </div>
                         </div>
                     </div>
                 `;
